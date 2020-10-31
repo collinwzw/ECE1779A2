@@ -1,0 +1,3 @@
+FLASK_APP=faceDetection.py
+FLASK_DEBUG=0
+FLASK_ENV=development

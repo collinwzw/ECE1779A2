@@ -1,0 +1,7 @@
+__pycache__
+app/__pycache__
+.systemPath
+.idea
+.DS_Store
+/ven/
+
