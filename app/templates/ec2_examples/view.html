@@ -17,14 +17,8 @@
 
     <div id="cpu_plot" style="width:300px;height:150px"></div>
 
-    <h2>Network In</h2>
-
-    <div id="net_in_plot" style="width:300px;height:150px"></div>
 
 
-    <h2>Network Out</h2>
-
-    <div id="net_out_plot" style="width:300px;height:150px"></div>
 
 
     <script>
@@ -38,8 +32,6 @@
 
 
         $.plot($("#cpu_plot"), [ {{ cpu_stats }} ] , options);
-        $.plot($("#net_in_plot"), [ {{ net_in_stats }} ] , options);
-        $.plot($("#net_out_plot"), [ {{ net_out_stats }} ] , options);
 
     </script>
 
