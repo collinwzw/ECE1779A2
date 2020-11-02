@@ -18,6 +18,10 @@
         </select>
     </form>
 
+    <form action="{{url_for('ec2_deleteAllInstanceExceptUserManager')}}" method='post' onsubmit='return confirm("Are you sure?")'>
+        <input type='submit' value='Delete All Instance' />
+    </form>
+
     <table />
     <thead>
        <th>ID</th>

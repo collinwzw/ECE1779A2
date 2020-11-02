@@ -6,6 +6,16 @@
         <title>{{title}}</title>
 
     </head>
+     {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="text-align: center;width: 100%; color: red; margin-bottom: 5px;">
+
+                            <strong>{{ message }}</strong>>
+                    </div>
+                {% endfor %}
+        {% endif %}
+    {% endwith %}
     <body>
         <h1>{{title}}</h2>
         {% block content %}

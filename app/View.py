@@ -5,6 +5,7 @@ from app.CloudWatch import CloudWatch
 from app import config
 from datetime import datetime, timedelta
 from operator import itemgetter
+from app.S3FileManager import S3
 import boto3
 @app.route('/')
 @app.route('/index')
@@ -31,6 +32,11 @@ def ec2_list():
 
     return render_template("ec2_examples/list.html", title="EC2 Instances", instances=instances)
 
+@app.route('/ec2_examples/deleteAll/', methods=['POST'])
+def ec2_deleteAllInstanceExceptUserManager():
+    EC2.deleteAllInstanceExceptUserManager()
+
+    return redirect(url_for('ec2_list'))
 
 @app.route('/ec2_examples/<id>', methods=['GET'])
 # Display details about a specific instance.
@@ -67,7 +73,7 @@ def ec2_create():
 # Terminate a EC2 instance
 def ec2_destroy(id):
     # create connection to ec2
-    EC2.getDeleteInstanceByID(id)
+    EC2.deleteInstanceByID(id)
 
     return redirect(url_for('ec2_list'))
 
@@ -118,38 +124,15 @@ def s3_upload(id):
     if new_file.filename == '':
         return redirect(url_for('s3_view', id=id))
 
-    s3 = boto3.client('s3')
-
-    s3.upload_fileobj(new_file, id, new_file.filename)
+    S3.uploadFileFromBucket()
 
     return redirect(url_for('s3_view', id=id))
-
-
-"""
-    Part 2
-
-    Complete the function s3_examples.delete so that it removes an object
-    from an S3 bucket.
-
-    Documentation for the S3 available at:
-
-        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.delete_object
-
-    Search in the above URL for the string "client.delete_object"
-
-
-"""
 
 
 @app.route('/s3_examples/delete/<bucket_id>/<key_id>', methods=['POST'])
 # Delete an object from a bucket
 def s3_delete(bucket_id, key_id):
-    s3 = boto3.client('s3')
-
-    ## your code start here
-    s3.delete_object(Bucket=bucket_id, Key=key_id)
-
-    ## your code ends here
+    S3.deleteFileFromBucket(bucket_id,key_id)
 
     return redirect(url_for('s3_view', id=bucket_id))
 
