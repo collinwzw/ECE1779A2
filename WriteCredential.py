@@ -1,12 +1,22 @@
-### Copy your Credentials here and run this file 
+import boto3
 
-file='./.aws/credentials'
+client = boto3.client("sts")
+
+response = client.get_session_token(
+    DurationSeconds=36000,
+    SerialNumber='string',
+    TokenCode='string'
+)
+
+
+### Copy your Credentials here and run this file
+
+file='/Users/qiweifu/.aws/credentials'
 with open(file, 'w') as filetowrite:
     myCredential = """[default]
-aws_access_key_id=ASIAUYP7WLAHGHFE2BXZ
-aws_secret_access_key=aaEY6b2qJet69FTOeciVAvbjQ4KMi9g022AKoqnl
-aws_session_token=FwoGZXIvYXdzEGEaDCla5PyckD9TI5dMDiLIAa+WwT80ffsvy78+LhACpcmOgLoK88f+SLBgOFvSLnY75MIOzFpi/m6c+gPPEMxxqgcHwXlPxnE7rKI7b/6Dpwc4OWVY7czSOB7VU7y07Kd3o4hkE3XGCUcRXeCUwtkcVQ0kl900DNY+gYk8bwQqrp5Orco2Yj4tUE4EUh8qeNc/2g9Q+uTmYqf5Kil6y1ehAIDQdIPX3c6m5uCHY4z9VWRQLu0xWwCVGvohA3KasNV8GHmiBG2ttIk8Avtvtg76IrOU8Q3kDQiAKOjIgP0FMi2MdEs3vKLRqe1cIdAAA9m2UIyJEdn0wcA6CKviPD9cgV+ZEsnrbPHz3GaLIvc=
-    
+aws_access_key_id=ASIAUYP7WLAHMRFG65U2
+aws_secret_access_key=6b9TnrhyN+v3c+DIOpHMxdwPpvWdAt+Vm2ADu4Xc
+aws_session_token=FwoGZXIvYXdzEJD//////////wEaDBz2VmSt56EPhou2QCLIAeFHn1bkMAKIJtL17LpoxLlncQSqeXOTBYNB0fuxHj150/sSuAlSLvbOxq6kz6LsxA6W+0yOYMiHFxMdgClnDXOLxgBNOQjw7zB+dJBqFP3fjtogPgtwm6UjhcR4J/ke1UK4SGlwJcNoz1Ec9ZWSk2zDvkMpEBbk9D2cUFnE3AzVk0obFqcCj6zYBGxUrQ0Zd8F5w9mqZWRLd7u1U5QVPrSTHzavHmYZaAxzxyWR3gpFevxzdt/ctTuLdAqrnHEwPakNxg1CDQlUKJmEi/0FMi3vkUB9F9h/F4o29Kbqk32kgY2lnQILX5RSEpjPEGJpPXCTmyk30X6XDeR7VVM=
     """
 
     filetowrite.write(myCredential)
@@ -15,7 +25,7 @@ aws_session_token=FwoGZXIvYXdzEGEaDCla5PyckD9TI5dMDiLIAa+WwT80ffsvy78+LhACpcmOgL
     
     
 #### Write in some default settings, don't change anything here 
-file='./.aws/config'
+file='/Users/qiweifu/.aws/config'
 with open(file, 'w') as filetowrite:
     myCredential = """[default]
                       region = us-east-1

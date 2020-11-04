@@ -12,8 +12,22 @@ min_worker = 1
 class AutoScaler:
 
     @staticmethod
-    def retire_instance(desire_number):
+    def retire_instance(retire_number):
         '''run the retire worker procedure'''
+        #ids_to_delete = ids[:(retire_number]
+        # resize ELB
+        # for id in ids_to_delete:
+        #     client.deregister_instances_from_load_balancer(
+        #         LoadBalancerName='ece1779A2',
+        #         Instances=[Instances = [{'InstanceId': instance.id}])
+        #     # wait until finish
+        #     waiter = client.get_waiter('instance_deregistered')
+        #     waiter.wait(
+        #         LoadBalancerName='ece1779A2',
+        #         Instances=[{'InstanceId': id}])
+        #     # drop instances
+        #     for id in ids_to_delete:
+        #         ec2.instances.filter(InstanceIds=[id]).terminate()
 
 
 
@@ -22,9 +36,9 @@ class AutoScaler:
 
 
     @staticmethod
-    def add_instance(desire_number):
+    def add_instance(add_number):
         '''run the add worker procedure'''
-        for i in range(desire_number):
+        for i in range(add_number):
             instances = ec2.create_instances(ImageId=config.ami_id, InstanceType='t2.small', MinCount=1, MaxCount=1,
                                              Monitoring={'Enabled': True},
                                              Placement={'AvailabilityZone': 'us-east-1a', 'GroupName': 'A2_workerpool'},
@@ -41,15 +55,12 @@ class AutoScaler:
                             },
                         ]
                     }, ])
-
-
             #register in elb
         # for instance in instances:
         #     client.register_instances_with_load_balancer(
         #         LoadBalancerName='ece1779A2',
         #         Instances=[Instances = [{'InstanceId': instance.id}]
         #         )
-
         # wait until finish
         # waiter = client.get_waiter('instance_in_service')
         #     waiter.wait(
