@@ -30,6 +30,7 @@ class CloudWatch:
             Statistics=[statistic],
             Dimensions=[{'Name': 'InstanceId', 'Value': id}]
         )
+        return cpu
 
     @staticmethod
     def getHttpRequestRateByID(id):
