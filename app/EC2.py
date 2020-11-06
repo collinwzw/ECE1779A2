@@ -57,11 +57,33 @@ class EC2:
         '''
         try:
             ec2 = boto3.resource('ec2')
-            ec2.create_instances(ImageId=config.ami_id, MinCount=1, MaxCount=1,
-                                 InstanceType='t2.small', SubnetId=config.subnet_id)
+            ec2.create_instances(ImageId=config.ami_id,
+                                 MinCount=1,
+                                 MaxCount=1,
+                                 InstanceType=config.instanceType,
+                                 SecurityGroupIds=[
+                                     config.securityGroupIds,
+                                 ],
+                                 # SecurityGroups=[
+                                 #     'launch-wizard-2',
+                                 # ],
+                                 SubnetId=config.subnet_id,
+                                 #UserData=f"\n#!/bin/bash\ncd Desktop\nchmod u+x start.sh\n./start.sh \n",
+                                 UserData=f"\n#!/bin/bash\ncd Desktop\n./start.sh \n",
+                                 KeyName=config.keyname,
+                                 IamInstanceProfile={
+                                     'Arn': config.instanceProfileARN,
+                                 },
+
+            )
+            # ec2.wait_until_running()
+            # ec2.load()
+            # print("Waiting for the checks to finish..")
+            # time.sleep(45)
+
         except:
             e = sys.exc_info()
-            flash("AWS connection error")
+            flash(e)
 
     @staticmethod
     def deleteInstanceByID(id):

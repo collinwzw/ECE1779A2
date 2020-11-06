@@ -1,15 +1,23 @@
 import math
 from datetime import datetime, timedelta
-
+from app import EC2
 
 cpu_up_threshold = 80
 cpu_down_threshold = 25
 cooling_time = 300
 max_worker = 8
 min_worker = 1
-
+upper_ratio = 1.2
+lower_ratio = 0.8
 
 class AutoScaler:
+    cpu_up_threshold = 80
+    cpu_down_threshold = 25
+    cooling_time = 300
+    max_worker = 8
+    min_worker = 1
+    upper_ratio = 1.2
+    lower_ratio = 0.8
 
     @staticmethod
     def retire_instance(retire_number):
@@ -39,22 +47,8 @@ class AutoScaler:
     def add_instance(add_number):
         '''run the add worker procedure'''
         for i in range(add_number):
-            instances = ec2.create_instances(ImageId=config.ami_id, InstanceType='t2.small', MinCount=1, MaxCount=1,
-                                             Monitoring={'Enabled': True},
-                                             Placement={'AvailabilityZone': 'us-east-1a', 'GroupName': 'A2_workerpool'},
-                                             SecurityGroups=[
-                                                 'launch-wizard-2',
-                                             ],
-                                             KeyName='keypair', TagSpecifications=[
-                    {
-                        'ResourceType': 'instance',
-                        'Tags': [
-                            {
-                                'Key': 'Name',
-                                'Value': 'Additional_workers'
-                            },
-                        ]
-                    }, ])
+            id = EC2.createInstance()
+
             #register in elb
         # for instance in instances:
         #     client.register_instances_with_load_balancer(
@@ -74,11 +68,11 @@ class AutoScaler:
         '''calculate the ratio of expand or shrink workers by cpuload
         '''
         if cup_load >= cpu_up_threshold and buffer_time >= cooling_time:
-            ratio = 1.2
+            ratio = upper_ratio
         elif cup_load <= cpu_down_threshold and buffer_time >= cooling_time:
             ratio = 0.8
         else:
-            ratio = 1
+            ratio = lower_ratio
         return ratio
 
 
@@ -95,31 +89,6 @@ class AutoScaler:
             target = current_number
         target_fix = max(min_worker,min(target,max_worker))
         return target_fix
-
-
-AutoScaler = AutoScaler()
-
-target = AutoScaler.get_target_number(1,0.8)
-print(target)
-
-
-cpu_average = client.get_metric_statistics(
-            Namespace='AWS/EC2',
-            MetricName='CPUUtilization',
-            Dimensions=[
-                {
-                'Name': 'InstanceId',
-                'Value': 'i-1234abcd'
-                },
-            ],
-            StartTime=datetime(2018, 4, 23) - timedelta(seconds=600),
-            EndTime=datetime(2018, 4, 24),
-            Period=86400,
-            Statistics=[
-                'Average',
-            ],
-            Unit='Percent'
-)
 
 
 
