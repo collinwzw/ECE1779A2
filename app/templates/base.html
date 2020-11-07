@@ -20,11 +20,19 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="{{ url_for('index') }}">Home</a>
+                    {% if session['loggedin'] %}
+                    <a class="navbar-brand" href="{{ url_for('worker') }}">Worker Detail</a>
+                    <a class="navbar-brand" href="{{ url_for('autoscaller') }}">Auto Scaller</a>
+                    {% endif %}
             </div>
                 <ul class="nav navbar-nav navbar-right">
+                    {% if not session['loggedin'] %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% endif %}
                 </ul>
             </div>
-        </div>
     </nav>
 {% endblock %}
 {% block content %}

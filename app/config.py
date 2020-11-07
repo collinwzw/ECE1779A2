@@ -8,3 +8,4 @@ keyname = 'ece1779_demo'
 instanceProfileARN='arn:aws:iam::973864493665:instance-profile/ECE1779User'
 instanceType='t2.small'
 securityGroupIds='sg-08912cd495e251bf9'
+
