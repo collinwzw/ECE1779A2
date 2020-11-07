@@ -31,11 +31,11 @@ class dbManager:
 
     @staticmethod
     def delete_all_data(table,returnHTML):
-        '''method delete data in SQL with target condition'''
+        '''method delete all data in one table'''
         db = dbManager.get_db()
         cursor = db.cursor(dictionary=True)
         try:
-            cursor.execute("truncate "+table)
+            cursor.execute("truncate table "+table)
             cursor.execute("commit")
         except:
             e = sys.exc_info()
