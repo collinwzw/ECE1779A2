@@ -1,6 +1,9 @@
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from app import EC2
+import sys
+import schedule
+
 
 cpu_up_threshold = 80
 cpu_down_threshold = 25
@@ -90,6 +93,13 @@ class AutoScaler:
         target_fix = max(min_worker,min(target,max_worker))
         return target_fix
 
+
+if __name__ == '__main__':
+    # start auto-scaling
+    schedule.every().minute.do(AutoScaler.auto_scaling)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 

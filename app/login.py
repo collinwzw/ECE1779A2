@@ -1,13 +1,7 @@
 from flask import session, flash, redirect, url_for, render_template, request
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired,Email, EqualTo, length
-from werkzeug.security import generate_password_hash,check_password_hash
+from werkzeug.security import check_password_hash
+from app.form import LoginForm
 
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(message='Empty Username')])
-    password = PasswordField('Password', validators=[DataRequired(message='Empty Password')])
-    submit = SubmitField('Login')
 
 class Login:
 

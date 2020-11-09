@@ -3,9 +3,36 @@
 
 {% block app_content %}
     <h1>Auto Scaller</h1>
+    <table class="table table-condensed">
+	<caption>Current Deploy</caption>
+	<thead>
+		<tr>
+			<th>Item</th>
+			<th>Max</th>
+			<th>Min</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Worker Pool</td>
+			<td>{{ max_worker }}</td>
+			<td>{{ min_worker }}</td>
+		</tr>
+		<tr>
+			<td>CPU Threshold</td>
+			<td>{{ cpu_up_threshold }}</td>
+			<td>{{ cpu_down_threshold }}</td>
+		</tr>
+		<tr>
+			<td>Scaling Ratio</td>
+			<td>{{ upper_ratio }}</td>
+			<td>{{ lower_ratio }}</td>
+		</tr>
+	</tbody>
+</table>
     <div class="row">
         <div class="col-md-4">
-            {{ wtf.quick_form(form) }}
+           {{ wtf.quick_form(form) }}
         </div>
     </div>
 

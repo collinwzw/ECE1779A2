@@ -2,6 +2,7 @@ from app import app
 from flask import render_template, redirect, url_for, request, g,session
 from app.login import Login
 from app.database import dbManager
+from app.form import ConfigForm
 
 @app.route('/')
 @app.route('/index')
@@ -10,9 +11,10 @@ def index():
     else Controller will return the mail.html"""
     if 'loggedin' in session:
         # User is loggedin show them the home page
-        return redirect('home')
+        return render_template("main.html")
     # User is not loggedin redirect to login pa ge
-    return render_template("main.html")
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -34,7 +36,11 @@ def worker():
 
 @app.route('/autoscaller')
 def autoscaller():
-    return 'block for autoscaller'
+    form = ConfigForm()
+    if 'loggedin' in session:
+        return render_template("autoscaller.html", title="Auto Scaller", form=form)
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/worker/deleta_all data')
