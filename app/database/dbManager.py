@@ -30,7 +30,7 @@ class dbManager:
                                        database=db_config['database'])
 
     @staticmethod
-    def delete_all_data(table,returnHTML):
+    def delete_all_data(table):
         '''method delete all data in one table'''
         db = dbManager.get_db()
         cursor = db.cursor(dictionary=True)
@@ -41,5 +41,37 @@ class dbManager:
             e = sys.exc_info()
             db.rollback()
             dbManager.teardown_db(e)
-            return render_template(returnHTML, message="database error: " + str(e))
+            return render_template("error.html", message="database error: " + str(e))
+        dbManager.teardown_db()
+
+    @staticmethod
+    def updata_autoscaling_parameter(key, value):
+        '''update autocaling table date'''
+        db = dbManager.get_db()
+        cursor = db.cursor(dictionary=True)
+        try:
+            query = "update autoscaling set parameter = %s WHERE item = %s"
+            cursor.execute(query, (value, key))
+            cursor.execute("commit")
+        except:
+            e = sys.exc_info()
+            db.rollback()
+            dbManager.teardown_db(e)
+            return render_template("error.html", message="database error: " + str(e))
+        dbManager.teardown_db()
+
+    @staticmethod
+    def fetch_autoscaling_parameter(item):
+        db = dbManager.get_db()
+        cursor = db.cursor(dictionary=True)
+        try:
+            query = "SELECT * FROM autoscaling WHERE item = %s "
+            cursor.execute(query, (item,))
+            result = cursor.fetchone()
+            return result
+        except:
+            e = sys.exc_info()
+            db.rollback()
+            dbManager.teardown_db(e)
+            return render_template("error.html", message="database error: " + str(e))
         dbManager.teardown_db()

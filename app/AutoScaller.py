@@ -1,6 +1,6 @@
 import math
 from datetime import datetime, timedelta, time
-from app import EC2
+from app import EC2,CloudWatch
 import sys
 import schedule
 
@@ -10,72 +10,44 @@ cpu_down_threshold = 25
 cooling_time = 300
 max_worker = 8
 min_worker = 1
-upper_ratio = 1.2
-lower_ratio = 0.8
+extend_ratio = 1.2
+shrink_ratio = 0.8
 
 class AutoScaler:
-    cpu_up_threshold = 80
-    cpu_down_threshold = 25
-    cooling_time = 300
-    max_worker = 8
-    min_worker = 1
-    upper_ratio = 1.2
-    lower_ratio = 0.8
 
     @staticmethod
-    def retire_instance(retire_number):
-        '''run the retire worker procedure'''
-        #ids_to_delete = ids[:(retire_number]
-        # resize ELB
-        # for id in ids_to_delete:
-        #     client.deregister_instances_from_load_balancer(
-        #         LoadBalancerName='ece1779A2',
-        #         Instances=[Instances = [{'InstanceId': instance.id}])
-        #     # wait until finish
-        #     waiter = client.get_waiter('instance_deregistered')
-        #     waiter.wait(
-        #         LoadBalancerName='ece1779A2',
-        #         Instances=[{'InstanceId': id}])
-        #     # drop instances
-        #     for id in ids_to_delete:
-        #         ec2.instances.filter(InstanceIds=[id]).terminate()
-
-
-
-
-
-
-
-    @staticmethod
-    def add_instance(add_number):
+    def autoscaling():
         '''run the add worker procedure'''
-        for i in range(add_number):
-            id = EC2.createInstance()
-
-            #register in elb
-        # for instance in instances:
-        #     client.register_instances_with_load_balancer(
-        #         LoadBalancerName='ece1779A2',
-        #         Instances=[Instances = [{'InstanceId': instance.id}]
-        #         )
-        # wait until finish
-        # waiter = client.get_waiter('instance_in_service')
-        #     waiter.wait(
-        #         LoadBalancerName='ece1779A2',
-        #         Instances=[{'InstanceId': instance.id}])
-
+        target_instances_id = EC2.ec2.getAllInstance()
+        response_list = []
+        current_worker = len(response_list)
+        CPUutilization = CloudWatch.CloudWatch.average_cpu_utilization()
+        ratio = AutoScaler.get_ratio(CPUutilization)
+        delta_number = AutoScaler.get_target_number(current_worker,ratio)
+        if delta_number == 0:
+            return
+        elif delta_number > 0:
+            for i in delta_number:
+                EC2.EC2.createInstance()
+        elif delta_number < 0:
+            for i in -(delta_number):
+                EC2.EC2.retireInstance()
+        if delta_number != 0:
+            time.sleep(cooling_time)
+        else:
+            return
 
 
     @staticmethod
-    def auto_scaling(cup_load, buffer_time):
+    def get_ratio(cup_load):
         '''calculate the ratio of expand or shrink workers by cpuload
         '''
-        if cup_load >= cpu_up_threshold and buffer_time >= cooling_time:
-            ratio = upper_ratio
-        elif cup_load <= cpu_down_threshold and buffer_time >= cooling_time:
-            ratio = 0.8
+        if cup_load >= cpu_up_threshold:
+            ratio = extend_ratio
+        elif cup_load <= cpu_down_threshold:
+            ratio = shrink_ratio
         else:
-            ratio = lower_ratio
+            ratio = 1
         return ratio
 
 
@@ -87,19 +59,16 @@ class AutoScaler:
         if ratio > 1:
             target = math.ceil(current_number * ratio)
         elif ratio < 1:
-            target = int(current_number * ratio)
+            target = current_number - int(current_number * ratio)
         else:
-            target = current_number
+            target = 0
         target_fix = max(min_worker,min(target,max_worker))
-        return target_fix
+        delta_number = target_fix - current_number
+        return delta_number
 
 
 if __name__ == '__main__':
     # start auto-scaling
-    schedule.every().minute.do(AutoScaler.auto_scaling)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
+    schedule.every(1).minute.do(AutoScaler.auto_scaling)
 
 

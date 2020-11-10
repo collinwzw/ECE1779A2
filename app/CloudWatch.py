@@ -32,6 +32,23 @@ class CloudWatch:
         )
         return cpu
 
+
+    @staticmethod
+    def average_cpu_utilization():
+        valid_instances_id = ec2.getAllInstance()
+        l = len(valid_instances_id)
+        logging.warning('valid_instances_id:{}'.format(valid_instances_id))
+        start_time, end_time = get_time_span(600)
+        cpu_sum = 0
+        for i in range(l):
+            response = CloudWatch.getEC2CPUUsageByID(valid_instances_id[i], start_time, end_time)
+            response = json.loads(response)
+            logging.warning(response)
+            if response and response[0]:
+                cpu_sum += response[0][1]
+        return cpu_sum / l if l else -1
+
+
     @staticmethod
     def getHttpRequestRateByID(id):
         pass
