@@ -61,12 +61,28 @@ class dbManager:
         dbManager.teardown_db()
 
     @staticmethod
-    def fetch_autoscaling_parameter(item):
+    def updata_autoscaling_parameter(key, value):
+        '''update autocaling table date'''
         db = dbManager.get_db()
         cursor = db.cursor(dictionary=True)
         try:
-            query = "SELECT * FROM autoscaling WHERE item = %s "
-            cursor.execute(query, (item,))
+            query = "update autoscaling set parameter = %s WHERE item = %s"
+            cursor.execute(query, (value, key))
+            cursor.execute("commit")
+        except:
+            e = sys.exc_info()
+            db.rollback()
+            dbManager.teardown_db(e)
+            return render_template("error.html", message="database error: " + str(e))
+        dbManager.teardown_db()
+
+    @staticmethod
+    def fetch_autoscaling_parameter(name):
+        db = dbManager.get_db()
+        cursor = db.cursor(dictionary=True)
+        try:
+            query = "SELECT * FROM autoscaling WHERE name = %s "
+            cursor.execute(query, (name,))
             result = cursor.fetchone()
             return result
         except:

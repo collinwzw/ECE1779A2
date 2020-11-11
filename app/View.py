@@ -3,6 +3,7 @@ from flask import render_template, redirect, url_for, request, g,session
 from app.login import Login
 from app.database import dbManager
 from app.form import ConfigForm
+from app.AutoScaller import AutoScaler
 
 @app.route('/')
 @app.route('/index')
@@ -36,9 +37,19 @@ def worker():
 
 @app.route('/autoscaller')
 def autoscaller():
-    form = ConfigForm()
     if 'loggedin' in session:
-        return render_template("autoscaller.html", title="Auto Scaller", form=form)
+        form = ConfigForm()
+        AutoScaler.read_config()
+        if form.validate_on_submit():
+            cpu_up_threshold = form.cpu_up_threshold
+            cpu_down_threshold = form.cpu_down_threshold
+            cooling_time = form.cooling_time
+            max_worker = form.max_worker
+            min_worker = form.min_worker
+            upper_ratio = form.upper_ratio
+            lower_ratio = form.lower_ratio
+            AutoScaler.write_config(cpu_up_threshold,cpu_down_threshold,cooling_time, max_worker,min_worker,upper_ratio,upper_ratio)
+        return render_template("autoscaller.html", title="Auto Scaller", form=form, usertable= usertable)
     else:
         return redirect(url_for('login'))
 

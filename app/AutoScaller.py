@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, time
 from app import EC2,CloudWatch
 import sys
 import schedule
+from app.database.dbManager import dbManager
 
 
 cpu_up_threshold = 80
@@ -16,10 +17,21 @@ shrink_ratio = 0.8
 class AutoScaler:
 
     @staticmethod
+    def read_config():
+        scaling_config = dbManager.fetch_autoscaling_parameter("config")
+
+    @staticmethod
+    def write_config(cpu_up_threshold, cpu_down_threshold, cooling_time, max_worker, min_worker, extend_ratio, shrink_ratio):
+        dbManager.updata_autoscaling_parameter("cpu_up_threshold",cpu_up_threshold)
+
+
+
+    @staticmethod
     def autoscaling():
         '''run the add worker procedure'''
-        target_instances_id = EC2.ec2.getAllInstance()
-        response_list = []
+        target_instances_id = EC2.ec2.getAllInstanceID()
+        response_list = []# ELB target group worker
+        AutoScaler.read_config()
         current_worker = len(response_list)
         CPUutilization = CloudWatch.CloudWatch.average_cpu_utilization()
         ratio = AutoScaler.get_ratio(CPUutilization)
@@ -27,10 +39,10 @@ class AutoScaler:
         if delta_number == 0:
             return
         elif delta_number > 0:
-            for i in delta_number:
+            for i in range(delta_number):
                 EC2.EC2.createInstance()
-        elif delta_number < 0:
-            for i in -(delta_number):
+        else:
+            for i in range(abs(delta_number)):
                 EC2.EC2.retireInstance()
         if delta_number != 0:
             time.sleep(cooling_time)
