@@ -14,24 +14,12 @@ response = client.get_session_token(
 file='/Users/qiweifu/.aws/credentials'
 with open(file, 'w') as filetowrite:
     myCredential = """[default]
-aws_access_key_id=ASIAUYP7WLAHMRFG65U2
-aws_secret_access_key=6b9TnrhyN+v3c+DIOpHMxdwPpvWdAt+Vm2ADu4Xc
-aws_session_token=FwoGZXIvYXdzEJD//////////wEaDBz2VmSt56EPhou2QCLIAeFHn1bkMAKIJtL17LpoxLlncQSqeXOTBYNB0fuxHj150/sSuAlSLvbOxq6kz6LsxA6W+0yOYMiHFxMdgClnDXOLxgBNOQjw7zB+dJBqFP3fjtogPgtwm6UjhcR4J/ke1UK4SGlwJcNoz1Ec9ZWSk2zDvkMpEBbk9D2cUFnE3AzVk0obFqcCj6zYBGxUrQ0Zd8F5w9mqZWRLd7u1U5QVPrSTHzavHmYZaAxzxyWR3gpFevxzdt/ctTuLdAqrnHEwPakNxg1CDQlUKJmEi/0FMi3vkUB9F9h/F4o29Kbqk32kgY2lnQILX5RSEpjPEGJpPXCTmyk30X6XDeR7VVM=
-    """
+aws_access_key_id=ASIAUYP7WLAHKWHXNWD6
+aws_secret_access_key=9i8b4W+5sz2CGA1jvlD+pBkyi2hIlcJy4K9Q+tm6
+aws_session_token=FwoGZXIvYXdzEDsaDBLR5+RCh6utPiOsYSLIAZXUWpIRjuEEcpJFw0UWcUui8UK3u1E4xSld6F1N1yqXe0BtrzHS/KYs4KEaDAwaNsGIgkoMBD+gdGIty42f/PnNv6wwSeSb0uzxpce6RScWo+CJmU9asMmXwOpfki3AnXHUFzkugrM3G+qIyMBMYAGubzevKltnhogmljSzGngjAF7O4dU1vlC7FhTLITeUBmULx6oQBAm84t9Sr3EOoNTNxjtPXkP7fphSvvB++0FTakfJj13uagOwd0CgUieqgrXAY/P9WnKxKK25sP0FMi0jREfmJnXiG4154iANBoY7lP9Uin5oUHnYPCsK4QGYZjjQDE+JLFB+DEBacug=
+
 
     filetowrite.write(myCredential)
     
     
-    
-    
-#### Write in some default settings, don't change anything here 
-file='/Users/qiweifu/.aws/config'
-with open(file, 'w') as filetowrite:
-    myCredential = """[default]
-                      region = us-east-1
-                      output = json
-                      [profile prod]
-                      region = us-east-1
-                      output = json"""
-    filetowrite.write(myCredential)
     

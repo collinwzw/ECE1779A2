@@ -35,8 +35,10 @@ class Login:
         """Pop out all user status in session to logout user
             """
         session.pop('loggedin', None)
+        session.pop('id', None)
         session.pop('username', None)
         session.pop('message', None)
+        session.pop('admin_auth', None)
 
 
 

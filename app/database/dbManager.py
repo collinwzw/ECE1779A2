@@ -42,7 +42,8 @@ class dbManager:
             db.rollback()
             dbManager.teardown_db(e)
             return render_template("error.html", message="database error: " + str(e))
-        dbManager.teardown_db()
+
+
 
     @staticmethod
     def updata_autoscaling_parameter(key, value):
@@ -58,7 +59,6 @@ class dbManager:
             db.rollback()
             dbManager.teardown_db(e)
             return render_template("error.html", message="database error: " + str(e))
-        dbManager.teardown_db()
 
     @staticmethod
     def updata_autoscaling_parameter(key, value):
@@ -74,7 +74,6 @@ class dbManager:
             db.rollback()
             dbManager.teardown_db(e)
             return render_template("error.html", message="database error: " + str(e))
-        dbManager.teardown_db()
 
     @staticmethod
     def fetch_autoscaling_parameter(name):
@@ -90,4 +89,17 @@ class dbManager:
             db.rollback()
             dbManager.teardown_db(e)
             return render_template("error.html", message="database error: " + str(e))
-        dbManager.teardown_db()
+
+    @staticmethod
+    def checkuser(username):
+        '''method search data in SQL with target condition'''
+        db = dbManager.get_db()
+        cursor = db.cursor(dictionary=True)
+        try:
+            query = "SELECT * FROM accounts WHERE username = %s"
+            cursor.execute(query, (username,))
+        except:
+            e = sys.exc_info()
+            db.rollback()
+            dbManager.teardown_db(e)
+            return render_template("error.html", message="database error: " + str(e))
