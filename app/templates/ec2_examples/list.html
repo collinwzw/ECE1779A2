@@ -1,22 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-
     <form action="{{url_for('ec2_create')}}" method="post">
         <input type="submit" value="New">
     </form>
 
-    <form action="{{url_for('ec2_list')}}" method="post">
-        <input type="submit" value="Filter">
-        <select name="filter">
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="running">Running</option>
-            <option value="shutting-down">Shutting-down</option>
-            <option value="stopped">Stopped</option>
-            <option value="stopping">Stopping</option>
-            <option value="terminated">Terminated</option>
-        </select>
-    </form>
 
     <form action="{{url_for('ec2_deleteAllInstanceExceptUserManager')}}" method='post' onsubmit='return confirm("Are you sure?")'>
         <input type='submit' value='Delete All Instance' />
@@ -28,25 +15,59 @@
        <th>Type</th>
        <th>Availability Zone</th>
        <th>Status</th>
+       <th> CPU </th>
+       <th> Http Request </th>
     </thead> 
-    {% for instance in instances %}
+    {% for instance in instances%}
+
         <tr>
             <td>{{ instance.id }}</td>
             <td>{{ instance.instance_type }}</td>
             <td>{{ instance.placement['AvailabilityZone']}}</td>
             <td>{{ instance.state['Name'] }}</td>
-            <td>
-                <form action="{{url_for('ec2_view',id=instance.id)}}" method='get'>
-                    <input type='submit' value='Details' />
-                </form>
-            </td>
-         
-            <td>
-                <form action="{{url_for('ec2_destroy',id=instance.id)}}" method='post' onsubmit='return confirm("Are you sure?")'>
-                    <input type='submit' value='Destroy' />
-                </form>
-            </td>
+            <td id="{{instance.id}}_cpu" style="width:300px;height:150px"></td>
+            <td id="{{instance.id}}_requests" style="width:300px;height:150px"></td>>
+<!--            <td>-->
+<!--&lt;!&ndash;                <form action="{{url_for('ec2_destroy',id=instance.id)}}" method='post' onsubmit='return confirm("Are you sure?")'>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <input type='submit' value='Destroy' />&ndash;&gt;-->
+<!--&lt;!&ndash;                </form>&ndash;&gt;-->
+<!--            </td>-->
         </tr>
+     <script>
+                async function get_CPU_Data (id) {
+                    const url = '/ec2_get_cpu_data/'+id; // the URL to send the HTTP request to
+                    const response = await fetch(url);
+                    return response.json()
+
+                }
+                async function get_Request_Data (id) {
+                    const url = '/ec2_get_request_data/'+id; // the URL to send the HTTP request to
+                    const response = await fetch(url);
+                    return response.json()
+                }
+
+                var options = {
+                    series: {
+                        lines: { show: true },
+                        points: { show: true }
+                    }
+                };
+                //for loop of instance   {{instances}}
+
+                get_CPU_Data("{{instance.id}}").then(res => {
+                    let r = res.data;
+                    $.plot($("#{{instance.id}}_cpu"),  [ r ]  , options);})
+
+                get_Request_Data("{{instance.id}}").then(res => {
+                    let r = res.data;
+                    $.plot($("#{{instance.id}}_requests"),  [ r ]  , options);})
+
+
+
+
+
+        </script>
     {% endfor %}
+
     </table>
 {% endblock %}

@@ -1,12 +1,12 @@
 from app import app
-from flask import render_template, redirect, url_for, request, g
+from flask import render_template, redirect, url_for, request
 from app.EC2 import EC2
 from app.CloudWatch import CloudWatch
-from app import config
-from datetime import datetime, timedelta
 from operator import itemgetter
 from app.S3FileManager import S3
 import boto3
+from datetime import datetime, timedelta
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -30,6 +30,8 @@ def ec2_list():
     else:
         instances = EC2.getInstanceByStatus(status)
 
+    for instance in instances:
+        pass
     return render_template("ec2_examples/list.html", title="EC2 Instances", instances=instances)
 
 @app.route('/ec2_examples/deleteAll/', methods=['POST'])
@@ -38,9 +40,8 @@ def ec2_deleteAllInstanceExceptUserManager():
 
     return redirect(url_for('ec2_list'))
 
-@app.route('/ec2_examples/<id>', methods=['GET'])
-# Display details about a specific instance.
-def ec2_view(id):
+@app.route('/ec2_get_cpu_data/<id>', methods=['GET'])
+def ec2GetCPUData(id):
 
     instance = EC2.getInstanceByID(id)
 
@@ -49,17 +50,42 @@ def ec2_view(id):
     cpu_stats = []
 
     for point in cpu['Datapoints']:
-        hour = point['Timestamp'].hour
+        #hour = point['Timestamp'].hour
         minute = point['Timestamp'].minute
-        time = hour + minute / 60
-        cpu_stats.append([time, point['Average']])
+        current_minute = datetime.now().minute
+        if minute > current_minute:
+            time = current_minute + 60 - minute
+        else:
+            time = current_minute - minute
+        cpu_stats.append([-time, point['Average']])
 
     cpu_stats = sorted(cpu_stats, key=itemgetter(0))
+    return {"data": cpu_stats}
 
+@app.route('/ec2_get_request_data/<id>', methods=['GET'])
+def ec2GetRequestData(id):
+    httpRequest = CloudWatch.getHttpRequestRateByID(id)
+    httpRequest_stats = []
 
-    return render_template("ec2_examples/view.html", title="Instance Info",
-                           instance=instance,
-                           cpu_stats=cpu_stats)
+    for point in httpRequest['Datapoints']:
+        #hour = point['Timestamp'].hour
+        minute = point['Timestamp'].minute
+        current_minute = datetime.now().minute
+        if minute > current_minute:
+            time = current_minute + 60 - minute
+        else:
+            time = current_minute - minute
+        httpRequest_stats.append([-time, point['Sum']])
+
+    httpRequest_stats = sorted(httpRequest_stats, key=itemgetter(0),reverse=True)
+    return {"data": httpRequest_stats}
+
+    #return cpu_stats
+    # return render_template("ec2_examples/view.html", title="Instance Info",
+    #                        instance=instance,
+    #                        cpu_stats=cpu_stats,
+    #                        httpRequest_stats = httpRequest_stats)
+
 
 
 @app.route('/ec2_examples/create', methods=['POST'])

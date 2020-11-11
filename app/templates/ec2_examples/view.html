@@ -17,21 +17,25 @@
 
     <div id="cpu_plot" style="width:300px;height:150px"></div>
 
+    <h2>Http Request</h2>
 
-
+    <div id="http_request_plot" style="width:300px;height:150px"></div>
 
 
     <script>
 
-        var options = {
-            series: {
-                lines: { show: true },
-                points: { show: true }
+            var options = {
+                series: {
+                    lines: {show: true},
+                    points: {show: true}
+                }
             }
-        };
+            var r = {{ cpu_stats }}
+            $.plot($("#cpu_plot"), [ r ] , options);
+            $.plot($("#http_request_plot"), [ {{ httpRequest_stats }} ] , options);
 
 
-        $.plot($("#cpu_plot"), [ {{ cpu_stats }} ] , options);
+
 
     </script>
 
