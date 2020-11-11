@@ -18,6 +18,7 @@
        <th>Status</th>
        <th> CPU </th>
        <th> Http Request </th>
+       <th> Action </th>
     </thead>
 
     {% for instance in instances%}
@@ -29,11 +30,11 @@
             <td>{{ instance.state['Name'] }}</td>
             <td id="{{instance.id}}_cpu" style="width:300px;height:150px"></td>
             <td id="{{instance.id}}_requests" style="width:300px;height:150px"></td>>
-<!--            <td>-->
-<!--&lt;!&ndash;                <form action="{{url_for('ec2_destroy',id=instance.id)}}" method='post' onsubmit='return confirm("Are you sure?")'>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <input type='submit' value='Destroy' />&ndash;&gt;-->
-<!--&lt;!&ndash;                </form>&ndash;&gt;-->
-<!--            </td>-->
+            <td>
+                <form action="{{url_for('ec2_destroy',id=instance.id)}}" method='post' onsubmit='return confirm("Are you sure?")'>
+                    <input type='submit' value='Destroy' />
+                </form>
+            </td>
         </tr>
 
 

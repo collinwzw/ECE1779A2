@@ -24,6 +24,17 @@ class AutoScaler:
     def write_config(cpu_up_threshold, cpu_down_threshold, cooling_time, max_worker, min_worker, extend_ratio, shrink_ratio):
         dbManager.updata_autoscaling_parameter("cpu_up_threshold",cpu_up_threshold)
 
+    @staticmethod
+    def average_cpu_utilization(instanceIDs):
+        average_cpu = []
+        for instanceID in instanceIDs:
+            cpu = CloudWatch.getEC2CPUUsageByID(instanceID, 2)
+            cpu_stats = []
+            for point in cpu['Datapoints']:
+                cpu_stats.append(point['Average'])
+            average_cpu.append(sum(cpu_stats) / len(cpu_stats))
+
+        return sum(average_cpu) / len(average_cpu)
 
 
     @staticmethod
@@ -33,7 +44,7 @@ class AutoScaler:
         response_list = []# ELB target group worker
         AutoScaler.read_config()
         current_worker = len(response_list)
-        CPUutilization = CloudWatch.CloudWatch.average_cpu_utilization()
+        CPUutilization = AutoScaler.average_cpu_utilization(target_instances_id)
         ratio = AutoScaler.get_ratio(CPUutilization)
         delta_number = AutoScaler.get_target_number(current_worker,ratio)
         if delta_number == 0:
