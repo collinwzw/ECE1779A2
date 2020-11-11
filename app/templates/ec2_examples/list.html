@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block content %}
+
+{% block app_content %}
     <form action="{{url_for('ec2_create')}}" method="post">
         <input type="submit" value="New">
     </form>
@@ -17,7 +18,8 @@
        <th>Status</th>
        <th> CPU </th>
        <th> Http Request </th>
-    </thead> 
+    </thead>
+
     {% for instance in instances%}
 
         <tr>
@@ -33,6 +35,8 @@
 <!--&lt;!&ndash;                </form>&ndash;&gt;-->
 <!--            </td>-->
         </tr>
+
+
      <script>
                 async function get_CPU_Data (id) {
                     const url = '/ec2_get_cpu_data/'+id; // the URL to send the HTTP request to

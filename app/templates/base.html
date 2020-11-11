@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.js') }}"></script>
+<!--        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.js') }}"></script>-->
+<!--        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.js') }}"></script>-->
+<!--        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.min.js') }}"></script>-->
         <title>{{title}}</title>
 
     </head>
@@ -46,6 +47,12 @@
                 </ul>
             </div>
     </nav>
+{% endblock %}
+
+    {% block scripts %}
+    {{ super() }}
+        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.js') }}"></script>
 {% endblock %}
 {% block content %}
   {% with messages = get_flashed_messages(with_categories=true) %}
