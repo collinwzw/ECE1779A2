@@ -7,6 +7,8 @@ from app.S3FileManager import S3
 import boto3
 from datetime import datetime, timedelta
 
+ToAddELBList = []
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -22,6 +24,11 @@ def index():
 @app.route('/ec2_examples', methods=['GET', 'POST'])
 # Display an HTML list of all ec2 instances
 def ec2_list():
+
+    if len(ToAddELBList) > 0:
+        for instanceID in ToAddELBList:
+            if EC2.checkStatus(instanceID):
+                EC2.addToELB(instanceID)
 
     status = request.form.get('filter', "")
 
@@ -91,7 +98,8 @@ def ec2GetRequestData(id):
 @app.route('/ec2_examples/create', methods=['POST'])
 # Start a new EC2 instance
 def ec2_create():
-    EC2.createInstance()
+    instanceID = EC2.createInstance()
+    ToAddELBList.append(instanceID)
     return redirect(url_for('ec2_list'))
 
 
