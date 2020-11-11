@@ -19,6 +19,7 @@ class AutoScaler:
     @staticmethod
     def read_config():
         scaling_config = dbManager.fetch_autoscaling_parameter("config")
+        return  scaling_config
 
     @staticmethod
     def write_config(cpu_up_threshold, cpu_down_threshold, cooling_time, max_worker, min_worker, extend_ratio, shrink_ratio):
@@ -31,7 +32,7 @@ class AutoScaler:
         '''run the add worker procedure'''
         target_instances_id = EC2.ec2.getAllInstanceID()
         response_list = []# ELB target group worker
-        AutoScaler.read_config()
+        scaling_config = AutoScaler.read_config()
         current_worker = len(response_list)
         CPUutilization = CloudWatch.CloudWatch.average_cpu_utilization()
         ratio = AutoScaler.get_ratio(CPUutilization)

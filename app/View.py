@@ -30,12 +30,9 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/worker',methods=['GET','POST'])
-def worker():
-    return 'block for worker details'
 
 
-@app.route('/autoscaller')
+@app.route('/autoscaller', methods=['GET', 'POST'])
 def autoscaller():
     if 'loggedin' in session:
         form = ConfigForm()
@@ -48,10 +45,11 @@ def autoscaller():
             min_worker = form.min_worker
             upper_ratio = form.upper_ratio
             lower_ratio = form.lower_ratio
-            AutoScaler.write_config(cpu_up_threshold,cpu_down_threshold,cooling_time, max_worker,min_worker,upper_ratio,upper_ratio)
-        return render_template("autoscaller.html", title="Auto Scaller", form=form, usertable= usertable)
+            AutoScaler.write_config(cpu_up_threshold,cpu_down_threshold,cooling_time, max_worker,min_worker,upper_ratio,lower_ratio)
+        return render_template("autoscaller.html", title="Auto Scaller", form=form)
     else:
         return redirect(url_for('login'))
+    return render_template("autoscaller.html", title="Auto Scaller", form=form)
 
 
 @app.route('/worker/deleta_all data')
