@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.js') }}"></script>
+<!--        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.js') }}"></script>-->
+<!--        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.js') }}"></script>-->
+<!--        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.min.js') }}"></script>-->
         <title>{{title}}</title>
 
     </head>
+<!--     {% with messages = get_flashed_messages(with_categories=true) %}-->
+<!--        {% if messages %}-->
+<!--                {% for category, message in messages %}-->
+<!--                    <div class="alert alert-{{ category }}" style="text-align: center;width: 100%; color: red; margin-bottom: 5px;">-->
+
+<!--                            <strong>{{ message }}</strong>>-->
+<!--                    </div>-->
+<!--                {% endfor %}-->
+<!--        {% endif %}-->
+<!--    {% endwith %}-->
+
+
 
 {% extends 'bootstrap/base.html' %}
 
@@ -34,6 +47,12 @@
                 </ul>
             </div>
     </nav>
+{% endblock %}
+
+    {% block scripts %}
+    {{ super() }}
+        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='flot/jquery.flot.js') }}"></script>
 {% endblock %}
 {% block content %}
   {% with messages = get_flashed_messages(with_categories=true) %}
