@@ -175,8 +175,7 @@ def s3_delete(bucket_id, key_id):
     return redirect(url_for('s3_view', id=bucket_id))
 
 
-    else:
-        return redirect(url_for('login'))
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
