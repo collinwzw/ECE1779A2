@@ -148,6 +148,42 @@ class EC2:
             flash(e)
 
     @staticmethod
+    def target_health_check(instanceID):
+        try:
+            client = boto3.client('elbv2')
+            response = client.describe_target_health(
+                TargetGroupArn=config.load_balancer_ARN,
+                Targets=[
+                    {
+                        'Id': instanceID,
+                        'Port': 5000
+                    },
+                ]
+            )
+            return response()
+        except:
+            e = sys.exc_info()
+            flash(e)
+
+
+    @staticmethod
+    def removeELB(instanceID):
+        try:
+            client = boto3.client('elbv2')
+            response = client.deregister_targets(
+                TargetGroupArn = config.load_balancer_ARN,
+                Targets=[
+                    {
+                        'Id': instanceID,
+                        'Port': 5000,
+                    },
+                ]
+            )
+        except:
+            e = sys.exc_info()
+            flash(e)
+
+    @staticmethod
     def deleteInstanceByID(id):
         '''
         delete instance by ID
@@ -171,7 +207,8 @@ class EC2:
         '''
         try:
             ec2 = boto3.resource('ec2')
-            ec2.instances.filter(InstanceIds=[id]).stop()
+            response = ec2.instances.filter(InstanceIds=[id]).stop()
+            return response
         except:
             e = sys.exc_info()
             flash("AWS connection error")

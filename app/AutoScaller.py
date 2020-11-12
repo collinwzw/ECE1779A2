@@ -4,6 +4,7 @@ from app import EC2,CloudWatch
 import sys
 import schedule
 from app.database.dbManager import dbManager
+from app.LoadBalancer import LoadBalancer
 
 
 cpu_up_threshold = 80
@@ -21,19 +22,13 @@ class AutoScaler:
         scaling_config = dbManager.fetch_autoscaling_parameter("config")
         return  scaling_config
 
-    @staticmethod
-    def write_config(cpu_up_threshold, cpu_down_threshold, cooling_time, max_worker, min_worker, extend_ratio, shrink_ratio):
-        dbManager.updata_autoscaling_parameter("cpu_up_threshold",cpu_up_threshold)
-
-
 
     @staticmethod
     def autoscaling():
         '''run the add worker procedure'''
-        target_instances_id = EC2.ec2.getAllInstanceID()
-        response_list = []# ELB target group worker
-        scaling_config = AutoScaler.read_config()
-        current_worker = len(response_list)
+        target_instances_id = LoadBalancer.get_valid_target_instances()
+        scaling_config = dbManager.fetch_autoscaling_parameter()
+        current_worker = len(target_instances_id)
         CPUutilization = CloudWatch.CloudWatch.average_cpu_utilization()
         ratio = AutoScaler.get_ratio(CPUutilization)
         delta_number = AutoScaler.get_target_number(current_worker,ratio)
@@ -44,7 +39,7 @@ class AutoScaler:
                 EC2.EC2.createInstance()
         else:
             for i in range(abs(delta_number)):
-                EC2.EC2.retireInstance()
+                AutoScaler.retire_worker()
         if delta_number != 0:
             time.sleep(cooling_time)
         else:
@@ -80,8 +75,54 @@ class AutoScaler:
         return delta_number
 
 
+    @staticmethod
+    def retire_worker():
+        """
+        shrink one instance into the self.TargetGroupArn
+        :return: msg: str
+        """
+        target_instances_id = LoadBalancer.get_valid_target_instances()
+        flag, msg = True, ''
+        if len(target_instances_id) > 1:
+            retire_instance_id = target_instances_id[0]
+            # unregister instance from target group
+            response = LoadBalancer.removeELB(retire_instance_id)
+            status = -1
+            if response and 'ResponseMetadata' in response and 'HTTPStatusCode' in response['ResponseMetadata']:
+                status = response['ResponseMetadata']['HTTPStatusCode']
+            if int(status) == 200:
+                status_2 = -1
+                response_2 = EC2.EC2.deleteInstanceByID(retire_instance_id)
+                if response_2 and 'ResponseMetadata' in response_2 and 'HTTPStatusCode' in response_2['ResponseMetadata']:
+                    status2 = response_2['ResponseMetadata']['HTTPStatusCode']
+                if int(status2) != 200:
+                    flag = False
+                    msg = "Unable to stop the unregistered instance"
+            else:
+                flag = False
+                msg = "Unable to unregister from target group"
+
+        else:
+            flag = False
+            msg = "No workers to unregister"
+
+        return [flag, msg]
+
+
+    @staticmethod
+    def register_workers():
+        pass
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     # start auto-scaling
-    schedule.every(1).minute.do(AutoScaler.auto_scaling)
+    schedule.every(1).minute.do(AutoScaler.autoscaling)
 
 

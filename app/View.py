@@ -26,6 +26,7 @@ def index():
     return render_template("main.html",title="Landing Page")
 
 
+@app.route('/ec2_list', methods=['GET', 'POST'])
 @app.route('/ec2_examples', methods=['GET', 'POST'])
 # Display an HTML list of all ec2 instances
 def ec2_list():
@@ -208,9 +209,9 @@ def login():
                     flash('Login successfully!')
                     return redirect(url_for('index'))
                 else:
-                    flash('Invalid username or password')
+                    flash('Invalid password')
                     return redirect(url_for('login'))
-            flash('Invalid username or password')
+            flash('Invalid username')
             return redirect(url_for('login'))
         else:
             return redirect(url_for('login'))
@@ -224,28 +225,45 @@ def logout():
 
 
 
+@app.route('/autoscaller/config', methods=['GET', 'POST'])
+def autoscaller_config():
+    if 'loggedin' in session:
+        form = ConfigForm()
+        if form.validate_on_submit():
+            max_worker = form.max_worker
+            min_worker = form.min_worker
+            cooling_time = form.cooling_time
+            cpu_up_threshold = form.cpu_up_threshold
+            cpu_down_threshold = form.cpu_down_threshold
+            extend_ratio = form.extend_ratio
+            shrink_ratio = form.shrink_ratio
+            # if cpu_up_threshold < cpu_down_threshold or max_worker < min_worker or extend_ratio < shrink_ratio:
+            #     flash("wrong config, please make sure max greater than min")
+            #     return render_template("scalingconfig.html", title="Auto Scaller", form=form)
+            # else:
+            dbManager.dbManager.updata_autoscaling_parameter(max_worker,
+                                                                 min_worker, cooling_time, cpu_up_threshold,
+                                                                 cpu_down_threshold,extend_ratio, shrink_ratio )
+            return redirect(url_for('index'))
+    else:
+        flash('Please Login')
+        return redirect(url_for('login'))
+    return render_template("scalingconfig.html", title="Auto Scaller", form=form)
+
+
 @app.route('/autoscaller', methods=['GET', 'POST'])
 def autoscaller():
     if 'loggedin' in session:
-        form = ConfigForm()
-        AutoScaler.read_config()
-        if form.validate_on_submit():
-            cpu_up_threshold = form.cpu_up_threshold
-            cpu_down_threshold = form.cpu_down_threshold
-            cooling_time = form.cooling_time
-            max_worker = form.max_worker
-            min_worker = form.min_worker
-            upper_ratio = form.upper_ratio
-            lower_ratio = form.lower_ratio
-            AutoScaler.write_config(cpu_up_threshold,cpu_down_threshold,cooling_time, max_worker,min_worker,upper_ratio,lower_ratio)
-        return render_template("autoscaller.html", title="Auto Scaller", form=form)
+        config_table = dbManager.dbManager.fetch_autoscaling_parameter()
+        return render_template("autoscaller.html", title="Auto Scaller", config=config_table)
     else:
+        flash('Please Login')
         return redirect(url_for('login'))
-    return render_template("autoscaller.html", title="Auto Scaller", form=form)
 
 
-@app.route('/worker/deleta_all data')
+@app.route('/worker/deleta_all_data')
 def delete_all_data():
-    dbManager.dbManager.delete_all_data("accounts","error.html")
-    dbManager.dbManager.delete_all_data("images","error.html")
+    dbManager.dbManager.delete_all_data("accounts")
+    dbManager.dbManager.delete_all_data("images")
+    dbManager.dbManager.write_admin()
     redirect(url_for("index"))
