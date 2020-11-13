@@ -46,3 +46,21 @@ class LoadBalancer:
         except:
             e = sys.exc_info()
             flash(e)
+
+    @staticmethod
+    def addToELB(instanceID):
+        try:
+            client = boto3.client('elbv2')
+            response = client.register_targets(
+                TargetGroupArn=config.load_balancer_ARN,
+                Targets=[
+                    {
+                        'Id': instanceID,
+                        'Port': 5000
+                    },
+                ]
+            )
+            return response
+        except:
+            e = sys.exc_info()
+            flash(e)

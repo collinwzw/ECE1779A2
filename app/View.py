@@ -2,6 +2,7 @@ from app import app
 from flask import render_template, redirect, url_for, request
 from app.EC2 import EC2
 from app.CloudWatch import CloudWatch
+from app.LoadBalancer import LoadBalancer
 from operator import itemgetter
 from app.S3FileManager import S3
 import boto3
