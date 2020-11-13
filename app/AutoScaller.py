@@ -22,10 +22,27 @@ class AutoScaler:
         scaling_config = dbManager.fetch_autoscaling_parameter("config")
         return  scaling_config
 
+    @staticmethod
+    def average_cpu_utilization(instanceIDs):
+        average_cpu = []
+        for instanceID in instanceIDs:
+            cpu = CloudWatch.getEC2CPUUsageByID(instanceID, 2)
+            cpu_stats = []
+            for point in cpu['Datapoints']:
+                cpu_stats.append(point['Average'])
+            average_cpu.append(sum(cpu_stats) / len(cpu_stats))
+
+        return sum(average_cpu) / len(average_cpu)
+
 
     @staticmethod
     def autoscaling():
         '''run the add worker procedure'''
+        # target_instances_id = EC2.ec2.getAllInstanceID()
+        # response_list = []# ELB target group worker
+        # AutoScaler.read_config()
+        # current_worker = len(response_list)
+        # CPUutilization = AutoScaler.average_cpu_utilization(target_instances_id)
         target_instances_id = LoadBalancer.get_valid_target_instances()
         scaling_config = dbManager.fetch_autoscaling_parameter()
         current_worker = len(target_instances_id)

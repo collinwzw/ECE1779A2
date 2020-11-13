@@ -50,6 +50,9 @@ def ec2_list():
 @app.route('/ec2_examples/deleteAll/', methods=['POST'])
 def ec2_deleteAllInstanceExceptUserManager():
     EC2.deleteAllInstanceExceptUserManager()
+    buckets = S3.getAlls3Bucket()
+    for bucket in buckets:
+        S3.deleteAllFileFromBucket(bucket.name)
 
     return redirect(url_for('ec2_list'))
 
@@ -58,7 +61,7 @@ def ec2GetCPUData(id):
 
     instance = EC2.getInstanceByID(id)
 
-    cpu = CloudWatch.getEC2CPUUsageByID(id)
+    cpu = CloudWatch.getEC2CPUUsageByID(id,30)
 
     cpu_stats = []
 
