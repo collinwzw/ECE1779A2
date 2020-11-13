@@ -48,9 +48,15 @@ class AutoScaler:
             return 0
 
 
+
     @staticmethod
     def autoscaling():
         '''run the add worker procedure'''
+        # target_instances_id = EC2.ec2.getAllInstanceID()
+        # response_list = []# ELB target group worker
+        # AutoScaler.read_config()
+        # current_worker = len(response_list)
+        # CPUutilization = AutoScaler.average_cpu_utilization(target_instances_id)
         target_instances_id = LoadBalancer.get_valid_target_instances()
         current_worker = len(target_instances_id)
         CPU_average = AutoScaler.average_cpu_utilization(target_instances_id)

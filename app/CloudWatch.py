@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 class CloudWatch:
 
     @staticmethod
-    def getEC2CPUUsageByID(id):
+    def getEC2CPUUsageByID(id,past_minute):
         '''
         get all ec2 instance from AWS
         :return: ec2 instances list. type ec2.instancesCollection
@@ -23,7 +23,7 @@ class CloudWatch:
         client = boto3.client('cloudwatch')
         cpu = client.get_metric_statistics(
             Period=1 * 60,
-            StartTime=datetime.utcnow() - timedelta(seconds=30 * 60),
+            StartTime=datetime.utcnow() - timedelta(seconds=past_minute * 60),
             EndTime=datetime.utcnow() - timedelta(seconds=0 * 60),
             MetricName=metric_name,
             Namespace=namespace,  # Unit='Percent',
