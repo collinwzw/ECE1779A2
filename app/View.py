@@ -7,11 +7,12 @@ from app.S3FileManager import S3
 import boto3
 from datetime import datetime, timedelta
 ToAddELBList = []
-from flask import render_template, redirect, url_for, request, g,session
+from flask import render_template, redirect, url_for, request, g,session,flash
 from app.login import Login
 from app.database import dbManager
-from app.form import ConfigForm
+from app.form import ConfigForm,LoginForm
 from app.AutoScaller import AutoScaler
+from werkzeug.security import check_password_hash
 
 @app.route('/')
 @app.route('/index')
@@ -25,6 +26,7 @@ def index():
     return render_template("main.html",title="Landing Page")
 
 
+@app.route('/ec2_list', methods=['GET', 'POST'])
 @app.route('/ec2_examples', methods=['GET', 'POST'])
 # Display an HTML list of all ec2 instances
 def ec2_list():
@@ -183,42 +185,88 @@ def s3_delete(bucket_id, key_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    Login.loginadmin()
-
+    """Controller that display the login page.controller that display the imageView page.
+    This controller will assert if user is already logged in or not.
+    If yes, it will redirect to home page.
+    If no, it will show the login page and let user input username and password.
+    Once user submit the username and password, it will go to dababase and verify them.
+    If login success, user id, username, admin_auth will be save in session
+    account: assert if username is in database.
+    """
+    form = LoginForm()
+    if request.method == "GET":
+        return render_template('login.html', title='Sign In', form=form)
+    if request.method == "POST":
+        if 'loggedin' in session:
+            return redirect(url_for('index'))
+        if form.validate_on_submit():
+            username = form.username.data
+            password = form.password.data
+            account = dbManager.dbManager.checkuser(username)
+            if account:
+                if check_password_hash(str(account['password_hash']), password):
+                    session['loggedin'] = True
+                    session['id'] = account['id']
+                    session['username'] = account['username']
+                    session['admin_auth'] = bool(account['admin_auth'])
+                    flash('Login successfully!')
+                    return redirect(url_for('index'))
+                else:
+                    flash('Invalid password')
+                    return redirect(url_for('login'))
+            flash('Invalid username')
+            return redirect(url_for('login'))
+        else:
+            return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
     Login.logout_user()
     """Controller pop the login status and user information in session, then redirect to index page"""
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
-@app.route('/worker',methods=['GET','POST'])
-def worker():
-    return 'block for worker details'
 
 
-@app.route('/autoscaller')
-def autoscaller():
+@app.route('/autoscaller/config', methods=['GET', 'POST'])
+def autoscaller_config():
     if 'loggedin' in session:
         form = ConfigForm()
-        AutoScaler.read_config()
         if form.validate_on_submit():
-            cpu_up_threshold = form.cpu_up_threshold
-            cpu_down_threshold = form.cpu_down_threshold
-            cooling_time = form.cooling_time
             max_worker = form.max_worker
             min_worker = form.min_worker
-            upper_ratio = form.upper_ratio
-            lower_ratio = form.lower_ratio
-            AutoScaler.write_config(cpu_up_threshold,cpu_down_threshold,cooling_time, max_worker,min_worker,upper_ratio,upper_ratio)
-        return render_template("autoscaller.html", title="Auto Scaller", form=form, usertable= usertable)
+            cooling_time = form.cooling_time
+            cpu_up_threshold = form.cpu_up_threshold
+            cpu_down_threshold = form.cpu_down_threshold
+            extend_ratio = form.extend_ratio
+            shrink_ratio = form.shrink_ratio
+            # if cpu_up_threshold < cpu_down_threshold or max_worker < min_worker or extend_ratio < shrink_ratio:
+            #     flash("wrong config, please make sure max greater than min")
+            #     return render_template("scalingconfig.html", title="Auto Scaller", form=form)
+            # else:
+            dbManager.dbManager.updata_autoscaling_parameter(max_worker,
+                                                                 min_worker, cooling_time, cpu_up_threshold,
+                                                                 cpu_down_threshold,extend_ratio, shrink_ratio )
+            return redirect(url_for('index'))
     else:
+        flash('Please Login')
+        return redirect(url_for('login'))
+    return render_template("scalingconfig.html", title="Auto Scaller", form=form)
+
+
+@app.route('/autoscaller', methods=['GET', 'POST'])
+def autoscaller():
+    if 'loggedin' in session:
+        config_table = dbManager.dbManager.fetch_autoscaling_parameter()
+        return render_template("autoscaller.html", title="Auto Scaller", config=config_table)
+    else:
+        flash('Please Login')
         return redirect(url_for('login'))
 
 
-@app.route('/worker/deleta_all data')
+@app.route('/worker/deleta_all_data')
 def delete_all_data():
-    dbManager.dbManager.delete_all_data("accounts","error.html")
-    dbManager.dbManager.delete_all_data("images","error.html")
+    dbManager.dbManager.delete_all_data("accounts")
+    dbManager.dbManager.delete_all_data("images")
+    dbManager.dbManager.write_admin()
     redirect(url_for("index"))
