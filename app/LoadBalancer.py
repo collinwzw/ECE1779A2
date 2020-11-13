@@ -5,7 +5,7 @@ from app import config
 class LoadBalancer:
     @staticmethod
     def get_target_worker():
-        elb = boto3.resource('elbv2')
+        elb = boto3.client('elbv2')
         response = elb.describe_target_health(
             TargetGroupArn=config.load_balancer_ARN,
         )

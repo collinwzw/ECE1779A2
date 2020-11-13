@@ -1,5 +1,3 @@
-from app import app
-import sys
 
 
 ami_id = 'ami-0b88ae25e55c9661f'

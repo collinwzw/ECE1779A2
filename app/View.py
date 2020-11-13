@@ -230,7 +230,7 @@ def autoscaller_config():
     if 'loggedin' in session:
         form = ConfigForm()
         if form.validate_on_submit():
-            max_worker = form.max_worker
+            max_worker = int(form.max_worker)
             min_worker = form.min_worker
             cooling_time = form.cooling_time
             cpu_up_threshold = form.cpu_up_threshold
@@ -244,7 +244,7 @@ def autoscaller_config():
             dbManager.dbManager.updata_autoscaling_parameter(max_worker,
                                                                  min_worker, cooling_time, cpu_up_threshold,
                                                                  cpu_down_threshold,extend_ratio, shrink_ratio )
-            return redirect(url_for('index'))
+            return redirect(url_for('autoscaller'))
     else:
         flash('Please Login')
         return redirect(url_for('login'))
@@ -255,7 +255,7 @@ def autoscaller_config():
 def autoscaller():
     if 'loggedin' in session:
         config_table = dbManager.dbManager.fetch_autoscaling_parameter()
-        return render_template("autoscaller.html", title="Auto Scaller", config=config_table)
+        return render_template("autoscaller.html", title="Auto Scaller", config=config_table[0])
     else:
         flash('Please Login')
         return redirect(url_for('login'))
@@ -267,3 +267,38 @@ def delete_all_data():
     dbManager.dbManager.delete_all_data("images")
     dbManager.dbManager.write_admin()
     redirect(url_for("index"))
+
+
+@app.route('/expandpool', methods=['GET', 'POST'])
+def expand_pool():
+    if 'loggedin' in session:
+        config_table = dbManager.dbManager.fetch_autoscaling_parameter()
+        pool_size = config_table[0]["max_worker"]
+        if pool_size <8:
+            new_pool_size = pool_size + 1
+            dbManager.dbManager.write_pool_size(new_pool_size)
+            flash("The worker pool size expanded")
+            return redirect(url_for("autoscaller"))
+        else:
+            flash("Your pool size has reached the upper limit")
+            return redirect(url_for("autoscaller"))
+
+
+@app.route('/shrinkpool', methods=['GET', 'POST'])
+def shrink_pool():
+    if 'loggedin' in session:
+        config_table = dbManager.dbManager.fetch_autoscaling_parameter()
+        pool_size = config_table[0]["max_worker"]
+        if pool_size >1:
+            new_pool_size = pool_size - 1
+            dbManager.dbManager.write_pool_size(new_pool_size)
+            flash("The worker pool size shrinked")
+            return redirect(url_for("autoscaller"))
+        else:
+            flash("Your pool size has reached the lower limit")
+            return redirect(url_for("autoscaller"))
+
+@app.route('/run')
+def run_auto():
+    return  AutoScaler.autoscaling()
+
