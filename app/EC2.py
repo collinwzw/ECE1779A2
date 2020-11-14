@@ -18,7 +18,7 @@ class EC2:
             instances = ec2.instances.all()
             result = []
             for instance in instances:
-                if instance.id == 'i-03d46ce71ce9f19c7' :
+                if instance.id == 'i-03d46ce71ce9f19c7':
                     pass
                 else:
                     result.append(instance)
@@ -39,7 +39,7 @@ class EC2:
             instances = ec2.instances.all()
             result = []
             for instance in instances:
-                if instance.id == 'i-03d46ce71ce9f19c7' :
+                if instance.id == 'i-03d46ce71ce9f19c7':
                     pass
                 else:
                     result.append(instance.id)
@@ -62,6 +62,7 @@ class EC2:
         except:
             e = sys.exc_info()
             flash("AWS connection error")
+
     @staticmethod
     def getInstanceByID(id):
         '''
@@ -216,3 +217,14 @@ class EC2:
         except:
             e = sys.exc_info()
             flash("AWS connection error")
+
+    @staticmethod
+    def getInstancesHealthStatus():
+        elb = boto3.client('elbv2')
+        response = elb.describe_target_health(
+            TargetGroupArn=config.load_balancer_ARN,
+        )
+        instances_health_status = {}
+        for target in response['TargetHealthDescriptions']:
+            instances_health_status[target['Target']['Id']] = target['TargetHealth']['State']
+        return instances_health_status
