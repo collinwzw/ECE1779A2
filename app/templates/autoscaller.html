@@ -3,7 +3,7 @@
 
 {% block app_content %}
     <h1>Auto Scaller</h1>
-    <table class="table table-condensed">
+    <table class="table table-bordered">
 	<caption>Current Deploy</caption>
 	<thead>
 		<tr>
@@ -15,26 +15,29 @@
 	<tbody>
 		<tr>
 			<td>Worker Pool</td>
-			<td>{{ config.max_worker }}</td>
-			<td>{{ config.min_worker }}</td>
+			<td>{{ config["max_worker"] }}</td>
+			<td>{{ config["min_worker"] }}</td>
 		</tr>
 		<tr>
 			<td>CPU Threshold</td>
-			<td>{{ config.cpu_up_threshold }}</td>
-			<td>{{ config.cpu_down_threshold }}</td>
+			<td>{{ config["cpu_up_threshold"] }}</td>
+			<td>{{ config["cpu_down_threshold"] }}</td>
 		</tr>
 		<tr>
 			<td>Scaling Ratio</td>
-			<td>{{ config.extend_ratio }}</td>
-			<td>{{ config.shrink_ratio }}</td>
+			<td>{{ config["extend_ratio"] }}</td>
+			<td>{{ config["shrink_ratio"] }}</td>
 		</tr>
 	    <tr>
 			<td>Cooling Time</td>
-			<td>{{ config.cooling_time }}</td>
+			<td>{{ config["cooling_time"] }}</td>
 		</tr>
 	</tbody>
 </table>
-<li class="bottom"><a href="{{ url_for('autoscaller_config') }}">change config</a></li>
+<li class="btn btn-default btn-lg"><a href="{{ url_for('expand_pool') }}">Expend Pool</a></li>
+<li class="btn btn-default btn-lg"><a href="{{ url_for('shrink_pool') }}">Shrink Pool</a></li>
+
+<li class="btn btn-default btn-lg"><a href="{{ url_for('autoscaller_config') }}">change config</a></li>
 
 
 {% endblock %}

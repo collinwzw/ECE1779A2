@@ -50,15 +50,14 @@ class dbManager:
         '''update autocaling table date'''
         db = dbManager.get_db()
         cursor = db.cursor(dictionary=True)
-        try:
-            query = "update autoscaling set max_worker= %s ,min_worker= %s,cooling_time= %s,cpu_up_threshold= %s,cpu_down_threshold= %s,extend_ratio= %s,shrink_ratio= %s where name = config"
-            cursor.execute(query, (max_worker, min_worker,cooling_time,cpu_up_threshold, cpu_down_threshold, extend_ratio, shrink_ratio))
-            cursor.execute("commit")
-        except:
-            e = sys.exc_info()
-            db.rollback()
-            dbManager.teardown_db(e)
-            return render_template("error.html", message="database error: " + str(e))
+        query = "update autoscaling set max_worker= %s ,min_worker= %s,cooling_time= %s,cpu_up_threshold= %s,cpu_down_threshold= %s,extend_ratio= %s,shrink_ratio= %s where name = 'config'"
+        cursor.execute(query, (max_worker, min_worker,cooling_time,cpu_up_threshold, cpu_down_threshold, extend_ratio, shrink_ratio))
+        cursor.execute("commit")
+        # except:
+        #     e = sys.exc_info()
+        #     db.rollback()
+        #     dbManager.teardown_db(e)
+        #     return render_template("error.html", message="database error: " + str(e))
 
 
     @staticmethod
@@ -103,6 +102,20 @@ class dbManager:
         try:
             cursor.execute("Insert into accounts (username, password_hash, email,admin_auth) "
                            "values (%s, %s, %s, %s)", (username, password_hash, email, admin_auth))
+            cursor.execute("commit")
+        except:
+            e = sys.exc_info()
+            db.rollback()
+            dbManager.teardown_db(e)
+            return render_template("error.html", message="database error: " + str(e))
+
+    @staticmethod
+    def write_pool_size(pool_size):
+        db = dbManager.get_db()
+        cursor = db.cursor(dictionary=True)
+        try:
+            query = "update autoscaling set max_worker= %s where name = 'config'"
+            cursor.execute(query, (pool_size,))
             cursor.execute("commit")
         except:
             e = sys.exc_info()

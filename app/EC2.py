@@ -166,22 +166,6 @@ class EC2:
             flash(e)
 
 
-    @staticmethod
-    def removeELB(instanceID):
-        try:
-            client = boto3.client('elbv2')
-            response = client.deregister_targets(
-                TargetGroupArn = config.load_balancer_ARN,
-                Targets=[
-                    {
-                        'Id': instanceID,
-                        'Port': 5000,
-                    },
-                ]
-            )
-        except:
-            e = sys.exc_info()
-            flash(e)
 
     @staticmethod
     def deleteInstanceByID(id):

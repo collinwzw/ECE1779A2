@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <form action="{{url_for('ec2_create')}}" method="post">
+<p>
+    <form action="{{url_for('ec2_create')}}" method="post" >
         <input type="submit" value="New">
     </form>
-
-
     <form action="{{url_for('ec2_deleteAllInstanceExceptUserManager')}}" method='post' onsubmit='return confirm("Are you sure?")'>
         <input type='submit' value='Delete All Instance' />
     </form>
+</p>
 
-    <table />
+    <table class="table table-bordered">
     <thead>
        <th>ID</th>
        <th>Type</th>
@@ -20,6 +20,7 @@
        <th> Http Request </th>
        <th> Action </th>
     </thead>
+
 
     {% for instance in instances%}
 
