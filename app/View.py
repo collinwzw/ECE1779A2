@@ -1,18 +1,17 @@
 from app import app
-from flask import render_template, redirect, url_for, request
 from app.EC2 import EC2
 from app.CloudWatch import CloudWatch
-from app.LoadBalancer import LoadBalancer
 from operator import itemgetter
 from app.S3FileManager import S3
 import boto3
-from datetime import datetime, timedelta
+from datetime import datetime
+
 ToAddELBList = []
-from flask import render_template, redirect, url_for, request, g,session,flash
+from flask import render_template, redirect, url_for, request, session,flash
 from app.login import Login
 from app.database import dbManager
 from app.form import ConfigForm,LoginForm
-from app.AutoScaller import AutoScaler
+from app.autoscaling.AutoScaller import AutoScaler
 from werkzeug.security import check_password_hash
 
 @app.route('/')
@@ -234,13 +233,13 @@ def autoscaller_config():
     if 'loggedin' in session:
         form = ConfigForm()
         if form.validate_on_submit():
-            max_worker = int(form.max_worker)
-            min_worker = form.min_worker
-            cooling_time = form.cooling_time
-            cpu_up_threshold = form.cpu_up_threshold
-            cpu_down_threshold = form.cpu_down_threshold
-            extend_ratio = form.extend_ratio
-            shrink_ratio = form.shrink_ratio
+            max_worker = form.max_worker.data
+            min_worker = form.min_worker.data
+            cooling_time = form.cooling_time.data
+            cpu_up_threshold = form.cpu_up_threshold.data
+            cpu_down_threshold = form.cpu_down_threshold.data
+            extend_ratio = form.extend_ratio.data
+            shrink_ratio = form.shrink_ratio.data
             # if cpu_up_threshold < cpu_down_threshold or max_worker < min_worker or extend_ratio < shrink_ratio:
             #     flash("wrong config, please make sure max greater than min")
             #     return render_template("scalingconfig.html", title="Auto Scaller", form=form)
@@ -301,8 +300,3 @@ def shrink_pool():
         else:
             flash("Your pool size has reached the lower limit")
             return redirect(url_for("autoscaller"))
-
-@app.route('/run')
-def run_auto():
-    return  AutoScaler.autoscaling()
-
