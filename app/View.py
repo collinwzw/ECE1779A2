@@ -24,7 +24,7 @@ def index():
         # User is loggedin show them the home page
         return render_template("main.html")
     # User is not loggedin redirect to login pa ge
-    return render_template("main.html",title="Landing Page")
+    return render_template("welcome.html",title="Landing Page")
 
 
 @app.route('/ec2_list', methods=['GET', 'POST'])

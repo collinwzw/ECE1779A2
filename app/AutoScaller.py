@@ -125,8 +125,8 @@ class AutoScaler:
     def register_workers():
         pass
 
-while True:
-    AutoScaler.autoscaling()
+# while True:
+#     AutoScaler.autoscaling()
 
 
 
