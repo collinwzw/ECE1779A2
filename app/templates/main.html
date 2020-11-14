@@ -5,5 +5,13 @@
         <li><a href="{{url_for('ec2_list')}}">EC2 Examples</a></li>
         <li><a href="{{url_for('s3_list')}}">S3 Examples</a></li>
     </ul>
-
+    <br>
+    <a href="http://ece1779a2-369707435.us-east-1.elb.amazonaws.com/" style="padding-left:30px">Link to load balanced user app </a>
+    <br>
+    <div style="padding-left:30px">
+        <h5 > The number of workers for the past 30 minutes</h5>
+         <form action="{{url_for('get_worker_count_graph')}}" method="POST" >
+            <input type="submit" value="view number of workers graph">
+        </form>
+    </div>
 {% endblock %}

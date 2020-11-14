@@ -1,3 +1,7 @@
+import json
+import threading
+import time
+
 from app import app
 from flask import render_template, redirect, url_for, request
 from app.EC2 import EC2
@@ -14,6 +18,7 @@ from app.form import ConfigForm,LoginForm
 from app.AutoScaller import AutoScaler
 from werkzeug.security import check_password_hash
 
+from app.LoadBalancer import LoadBalancer
 @app.route('/')
 @app.route('/index')
 def index():
@@ -24,6 +29,37 @@ def index():
         return render_template("main.html")
     # User is not loggedin redirect to login pa ge
     return render_template("main.html",title="Landing Page")
+'''
+@app.route('/get_worker_count_graph',methods=['POST','GET'])
+def get_worker_count_graph():
+    monitor = worker_count.get_worker_count_monitor()
+    return render_template('worker_count_graph.html',
+    worker_count_by_time = monitor.get_record())
+'''
+
+@app.route('/get_worker_count_graph',methods=['POST','GET'])
+def get_worker_count_graph():
+    record = []
+    period = 60
+    time_range = 1800
+    record_max = time_range/period
+    started = False
+    running_thread = threading.Thread(target = get_worker_count_graph,daemon = True)
+    if not started:
+        started = True
+        #running_thread.start()
+        while True:
+            record.append({
+                "Timestamp": datetime.now().strftime("%H:%M"),
+                "Count": LoadBalancer.get_number_of_worker()
+            })
+            if (len(record) > record_max):
+                record.pop(0)
+            #time.sleep(period)
+            return render_template('worker_count_graph.html',
+                           worker_count_by_time = record)
+
+
 
 
 @app.route('/ec2_list', methods=['GET', 'POST'])

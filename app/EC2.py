@@ -1,7 +1,10 @@
+from datetime import datetime
+
 import boto3
 from app import config
 from flask import flash
 import sys,os
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class EC2:
@@ -18,7 +21,7 @@ class EC2:
             instances = ec2.instances.all()
             result = []
             for instance in instances:
-                if instance.id == 'i-03d46ce71ce9f19c7' :
+                if instance.id == 'i-03d46ce71ce9f19c7':
                     pass
                 else:
                     result.append(instance)
@@ -39,7 +42,7 @@ class EC2:
             instances = ec2.instances.all()
             result = []
             for instance in instances:
-                if instance.id == 'i-03d46ce71ce9f19c7' :
+                if instance.id == 'i-03d46ce71ce9f19c7':
                     pass
                 else:
                     result.append(instance.id)
@@ -62,6 +65,7 @@ class EC2:
         except:
             e = sys.exc_info()
             flash("AWS connection error")
+
     @staticmethod
     def getInstanceByID(id):
         '''
@@ -88,21 +92,21 @@ class EC2:
                 data = myfile.read()
             ec2 = boto3.resource('ec2')
             instance = ec2.create_instances(ImageId=config.ami_id,
-                                 MinCount=1,
-                                 MaxCount=1,
-                                 InstanceType=config.instanceType,
-                                 SecurityGroupIds=[
-                                     config.securityGroupIds,
-                                 ],
-                                 SubnetId=config.subnet_id,
-                                 #UserData=f"\n#!/bin/bash\ncd Desktop\nchmod u+x start.sh\n./start.sh \n",
-                                 #UserData=f"\n#!/bin/bash\ncd Desktop\n./start.sh \n",
-                                 UserData=data,
-                                 KeyName=config.keyname,
-                                 IamInstanceProfile={
-                                     'Arn': config.instanceProfileARN,
-                                 },
-            )
+                                            MinCount=1,
+                                            MaxCount=1,
+                                            InstanceType=config.instanceType,
+                                            SecurityGroupIds=[
+                                                config.securityGroupIds,
+                                            ],
+                                            SubnetId=config.subnet_id,
+                                            # UserData=f"\n#!/bin/bash\ncd Desktop\nchmod u+x start.sh\n./start.sh \n",
+                                            # UserData=f"\n#!/bin/bash\ncd Desktop\n./start.sh \n",
+                                            UserData=data,
+                                            KeyName=config.keyname,
+                                            IamInstanceProfile={
+                                                'Arn': config.instanceProfileARN,
+                                            },
+                                            )
             return instance[0].id
         except:
             e = sys.exc_info()
@@ -137,7 +141,7 @@ class EC2:
                     },
                 ]
             )
-            #return instanceID
+            # return instanceID
             # ec2.wait_until_running()
             # ec2.load()
             # print("Waiting for the checks to finish..")
@@ -164,7 +168,6 @@ class EC2:
         except:
             e = sys.exc_info()
             flash(e)
-
 
     @staticmethod
     def removeELB(instanceID):
@@ -224,7 +227,7 @@ class EC2:
             instances = EC2.getAllInstance()
             for instance in instances:
                 if instance.id == 'i-03d46ce71ce9f19c7' or instance.id == "i-09bf2c7e50e2e7a50":
-                    #EC2.stopInstanceByID(instance.id)
+                    # EC2.stopInstanceByID(instance.id)
                     pass
                 else:
                     EC2.deleteInstanceByID(instance.id)
@@ -232,3 +235,14 @@ class EC2:
         except:
             e = sys.exc_info()
             flash("AWS connection error")
+
+    @staticmethod
+    def getInstancesHealthStatus():
+        elb = boto3.client('elbv2')
+        response = elb.describe_target_health(
+            TargetGroupArn=config.load_balancer_ARN,
+        )
+        instances_health_status = {}
+        for target in response['TargetHealthDescriptions']:
+            instances_health_status[target['Target']['Id']] = target['TargetHealth']['State']
+        return instances_health_status

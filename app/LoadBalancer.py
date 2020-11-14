@@ -1,6 +1,6 @@
 import boto3
 from app import config
-
+from app.EC2 import EC2
 
 class LoadBalancer:
     @staticmethod
@@ -19,6 +19,14 @@ class LoadBalancer:
                 })
         return instances
 
+    @staticmethod
+    def get_number_of_worker():
+        worker = 0
+        health_status = EC2.getInstancesHealthStatus()
+        for instance in health_status:
+            if (health_status[instance] in {'healthy', 'unhealthy'}):
+                worker += 1
+        return worker
 
     @staticmethod
     def get_valid_target_instances():
