@@ -216,3 +216,10 @@ class EC2:
         except:
             e = sys.exc_info()
             flash("AWS connection error")
+
+
+
+    @staticmethod
+    def count_worker():
+        target_instances_id = LoadBalancer.get_valid_target_instances()
+        current_worker = len(target_instances_id)

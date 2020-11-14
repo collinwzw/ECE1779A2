@@ -64,3 +64,9 @@ class LoadBalancer:
         except:
             e = sys.exc_info()
             flash(e)
+
+    @staticmethod
+    def count_worker():
+        target_instances_id = LoadBalancer.get_valid_target_instances()
+        current_worker = len(target_instances_id)
+        return current_worker
