@@ -45,12 +45,12 @@ class AutoScaling:
         # shrink_ratio = scaling_config[0]["shrink_ratio"]
         print("autoscaler running")
         # AutoScaling.register_idle_worker()
-        cpu_up_threshold = 70
+        cpu_up_threshold = 20
         cpu_down_threshold = 10
         cooling_time = 200
         max_worker = 8
         min_worker = 1
-        extend_ratio = 5
+        extend_ratio = 1.2
         shrink_ratio = 0.7
         target_instances_id = aws.get_valid_target_instances()
         current_worker = len(target_instances_id)
