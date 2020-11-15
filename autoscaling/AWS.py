@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 import boto3
-import config
-import sys
+from autoscaling import config
+import sys,os
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 class aws:
 
@@ -104,7 +105,7 @@ class aws:
         create one instance of pre-defined imageID with pre-defined subnet_id
         :return: void
         '''
-        with open('/Users/qiweifu/Documents/autoscaling/UserData.txt', 'r') as myfile:
+        with open(basedir + '/UserData.txt', 'r') as myfile:
             data = myfile.read()
         ec2 = boto3.resource('ec2')
         instance = ec2.create_instances(ImageId=config.ami_id,
