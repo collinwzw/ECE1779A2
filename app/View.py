@@ -114,7 +114,7 @@ def WorkerNumberGraph():
     return render_template("worker_count_graph.html")
 
 
-@app.route('/get_worker_number',methods=['POST','GET'])
+@app.route('/get_worker_number',methods=['GET'])
 def getWorkerNumber():
     worker = CloudWatch.getWorkerNumber()
     worker_stats =[]
@@ -128,7 +128,7 @@ def getWorkerNumber():
             time = current_minute - minute
         worker_stats.append([-time, point['Maximum']])
 
-    worker_stats = sorted(worker_stats, key=itemgetter(0), reverse=True)
+    worker_stats = sorted(worker_stats, key=itemgetter(0))
     return {"data": worker_stats}
 
 

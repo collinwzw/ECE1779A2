@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <div id="{{worker_plot}}" ></div>
+    <div id="worker_plot" ></div>
 
     <script>
         function get_Worker_Data () {
@@ -18,7 +18,7 @@
 
         get_Worker_Data().then(res => {
             let r = res.data;
-            $.plot($("#{{worker_plot}}"), [ r ]  , options);})
+            $.plot($("#worker_plot"), [ r ]  , options);})
 
     </script>
 
