@@ -31,7 +31,8 @@ def index():
     else Controller will return the mail.html"""
     if 'loggedin' in session:
         # User is loggedin show them the home page
-        return render_template("main.html")
+        worker_number = LoadBalancer.count_worker()
+        return render_template("main.html",worker = worker_number)
     # User is not loggedin redirect to login pa ge
     return render_template("welcome.html",title="Landing Page")
 

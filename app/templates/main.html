@@ -2,13 +2,36 @@
 {% block content %}
 
     <br>
-    <a href="http://ece1779a2-369707435.us-east-1.elb.amazonaws.com/" style="padding-left:30px">Link to load balanced user app </a>
+<!--    <a href="http://ece1779a2-369707435.us-east-1.elb.amazonaws.com/" style="padding-left:30px">Link to load balanced user app </a>-->
+<center>
+    <br><li class="btn btn-default btn-lg"><a href="http://ece1779a2-369707435.us-east-1.elb.amazonaws.com/">User App Entrance</a></li>
+    <h3>Current Worker {{ worker }}</h3>
     <br>
-    <br>
-    <br>
-    <div style="padding-left:30px">
+<!--    <div style="padding-left:30px">-->
 
-        <a href= "{{url_for('WorkerNumberGraph')}}">View number of workers graph</a>
+<!--        <a href= "{{url_for('WorkerNumberGraph')}}">View number of workers graph</a>-->
 
-    </div>
+<!--    </div>-->
+
+    <div id="worker_plot" style="width:600px;height:300px"></div>
+    </center>
+
+    <script>
+        async function get_Worker_Data () {
+            const url = '/get_worker_number';
+            const response = await fetch(url);
+            return response.json()
+        }
+        var options = {
+            series: {
+                lines: { show: true },
+                points: { show: true }
+            }
+        };
+
+        get_Worker_Data().then(res => {
+            let r = res.data;
+            $.plot($("#worker_plot"), [ r ]  , options);})
+
+    </script>
 {% endblock %}
