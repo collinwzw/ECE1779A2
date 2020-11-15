@@ -49,7 +49,7 @@ class EC2:
             flash("AWS connection error")
 
     @staticmethod
-    def getInstanceByStatus(filters):
+    def getInstanceByStatus(status):
         '''
         get ec2 instance by status
         :param filters:
@@ -57,8 +57,15 @@ class EC2:
         '''
         try:
             ec2 = boto3.resource('ec2')
+            filters = [{'Name': 'instance-state-name', 'Values': [status]}]
             instances = ec2.instances.filter(Filters=filters)
-            return instances
+            result = []
+            for instance in instances:
+                if instance.id == 'i-03d46ce71ce9f19c7':
+                    pass
+                else:
+                    result.append(instance)
+            return result
         except:
             e = sys.exc_info()
             flash("AWS connection error")
@@ -92,6 +99,9 @@ class EC2:
                                  MinCount=1,
                                  MaxCount=1,
                                  InstanceType=config.instanceType,
+                                 Monitoring={
+                                     'Enabled': True
+                                 },
                                  SecurityGroupIds=[
                                      config.securityGroupIds,
                                  ],
@@ -218,13 +228,9 @@ class EC2:
             e = sys.exc_info()
             flash("AWS connection error")
 
+
+
     @staticmethod
-    def getInstancesHealthStatus():
-        elb = boto3.client('elbv2')
-        response = elb.describe_target_health(
-            TargetGroupArn=config.load_balancer_ARN,
-        )
-        instances_health_status = {}
-        for target in response['TargetHealthDescriptions']:
-            instances_health_status[target['Target']['Id']] = target['TargetHealth']['State']
-        return instances_health_status
+    def count_worker():
+        target_instances_id = LoadBalancer.get_valid_target_instances()
+        current_worker = len(target_instances_id)
