@@ -3,7 +3,7 @@
 {% block app_content %}
 <p>
     <form action="{{url_for('ec2_create')}}" method="post" >
-        <input type="submit" value="New">
+        <input type="submit" value="Add one Worker">
     </form>
     <form action="{{url_for('ec2_deleteAllInstanceExceptUserManager')}}" method='post' onsubmit='return confirm("Are you sure?")'>
         <input type='submit' value='Delete All Instance' />
