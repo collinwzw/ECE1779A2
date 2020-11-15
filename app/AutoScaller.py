@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, time
 from time import sleep
 from app import EC2,CloudWatch
 import sys
-import schedule
+from multiprocessing import Process
 from app.database.dbManager import dbManager
 from app.LoadBalancer import LoadBalancer
 from app.CloudWatch import CloudWatch
@@ -55,26 +55,29 @@ class AutoScaler:
     @staticmethod
     def autoscaling():
         '''run the add worker procedure'''
-        target_instances_id = LoadBalancer.get_valid_target_instances()
-        current_worker = len(target_instances_id)
-        CPU_average = AutoScaler.average_cpu_utilization(target_instances_id)
-        ratio = AutoScaler.get_ratio(CPU_average)
-        delta_number = AutoScaler.get_target_number(current_worker,ratio)
-        if delta_number == 0:
-            return
-        elif delta_number > 0:
-            target_ids = []
-            for i in range(delta_number):
-                new_id = EC2.EC2.createInstance()
-                target_ids.append(new_id)
-            sleep(200)
-            for instance_id in target_ids:
-                EC2.EC2.addToELB(instance_id)
-        else:
-            for i in range(abs(delta_number)):
-                AutoScaler.retire_worker()
+        while True:
+            print("running")
+            target_instances_id = LoadBalancer.get_valid_target_instances()
+            current_worker = len(target_instances_id)
+            CPU_average = AutoScaler.average_cpu_utilization(target_instances_id)
+            ratio = AutoScaler.get_ratio(CPU_average)
+            delta_number = AutoScaler.get_target_number(current_worker,ratio)
+            if delta_number == 0:
+                sleep(60)
+                return
+            elif delta_number > 0:
+                target_ids = []
+                for i in range(delta_number):
+                    new_id = EC2.EC2.createInstance()
+                    target_ids.append(new_id)
+                sleep(200)
+                for instance_id in target_ids:
+                    EC2.EC2.addToELB(instance_id)
+            else:
+                for i in range(abs(delta_number)):
+                    AutoScaler.retire_worker()
+                sleep(60)
             sleep(60)
-        sleep(60)
 
 
     @staticmethod
@@ -125,9 +128,8 @@ class AutoScaler:
     def register_workers():
         pass
 
-# while True:
-#     AutoScaler.autoscaling()
-
+#if __name__ == '__main__' :
+    #p = Process(target=AutoScaler.autoscaling)
 
 
 

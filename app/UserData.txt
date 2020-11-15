@@ -6,4 +6,5 @@ python3 -m pip install flask_bootstrap
 python3 -m pip install mysql-connector-python
 python3 -m pip install flask-wtf
 python3 -m pip install email_validator
+python3 -m pip install ec2_metadata
 ./start.sh > log.txt 2> log2.txt

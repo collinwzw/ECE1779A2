@@ -6,7 +6,7 @@ from app import app
 from flask import render_template, redirect, url_for, request
 from app.EC2 import EC2
 from app.CloudWatch import CloudWatch
-from app.LoadBalancer import LoadBalancer
+
 from operator import itemgetter
 from app.S3FileManager import S3
 import boto3
@@ -16,7 +16,7 @@ from flask import render_template, redirect, url_for, request, g,session,flash
 from app.login import Login
 from app.database import dbManager
 from app.form import ConfigForm,LoginForm
-from app.AutoScaller import AutoScaler
+
 from werkzeug.security import check_password_hash
 
 from app.LoadBalancer import LoadBalancer
@@ -74,20 +74,26 @@ def ec2_list():
             if EC2.checkStatus(instanceID):
                 EC2.addToELB(instanceID)
 
-    status = request.form.get('filter', "")
 
-    if status == "" or status == "all":
-        instances = EC2.getAllInstance()
-    else:
-        instances = EC2.getInstanceByStatus(status)
+
+    # # if status == "" or status == "all":
+    # #     instances = EC2.getAllInstance()
+    # # else:
+    #     instances = EC2.getInstanceByStatus(status)
+    instances = EC2.getInstanceByStatus('running')
 
     for instance in instances:
         pass
     return render_template("ec2_examples/list.html", title="EC2 Instances", instances=instances)
 
-@app.route('/ec2_examples/deleteAll/', methods=['POST'])
+@app.route('/ec2_examples/deleteAllInstance/', methods=['POST'])
 def ec2_deleteAllInstanceExceptUserManager():
     EC2.deleteAllInstanceExceptUserManager()
+    return redirect(url_for('ec2_list'))
+
+@app.route('/ec2_examples/deleteAllData/', methods=['POST'])
+def ec2_deleteAllData():
+
     buckets = S3.getAlls3Bucket()
     for bucket in buckets:
         S3.deleteAllFileFromBucket(bucket.name)
@@ -159,63 +165,6 @@ def ec2_destroy(id):
     return redirect(url_for('ec2_list'))
 
 
-@app.route('/s3_examples', methods=['GET'])
-# Display an HTML list of all s3 buckets.
-def s3_list():
-    # Let's use Amazon S3
-    s3 = boto3.resource('s3')
-
-    # Print out bucket names
-    buckets = s3.buckets.all()
-
-    for b in buckets:
-        name = b.name
-
-    buckets = s3.buckets.all()
-
-    return render_template("s3_examples/list.html", title="s3 Instances", buckets=buckets)
-
-
-@app.route('/s3_examples/<id>', methods=['GET'])
-# Display details about a specific bucket.
-def s3_view(id):
-    s3 = boto3.resource('s3')
-
-    bucket = s3.Bucket(id)
-
-    for key in bucket.objects.all():
-        k = key
-
-    keys = bucket.objects.all()
-
-    return render_template("s3_examples/view.html", title="S3 Bucket Contents", id=id, keys=keys)
-
-
-@app.route('/s3_examples/upload/<id>', methods=['POST'])
-# Upload a new file to an existing bucket
-def s3_upload(id):
-    # check if the post request has the file part
-    if 'new_file' not in request.files:
-        return redirect(url_for('s3_view', id=id))
-
-    new_file = request.files['new_file']
-
-    # if user does not select file, browser also
-    # submit a empty part without filename
-    if new_file.filename == '':
-        return redirect(url_for('s3_view', id=id))
-
-    S3.uploadFileFromBucket()
-
-    return redirect(url_for('s3_view', id=id))
-
-
-@app.route('/s3_examples/delete/<bucket_id>/<key_id>', methods=['POST'])
-# Delete an object from a bucket
-def s3_delete(bucket_id, key_id):
-    S3.deleteFileFromBucket(bucket_id,key_id)
-
-    return redirect(url_for('s3_view', id=bucket_id))
 
 
 
@@ -339,7 +288,5 @@ def shrink_pool():
             flash("Your pool size has reached the lower limit")
             return redirect(url_for("autoscaller"))
 
-@app.route('/run')
-def run_auto():
-    return  AutoScaler.autoscaling()
+
 
