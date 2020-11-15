@@ -47,7 +47,7 @@ class AutoScaling:
         # AutoScaling.register_idle_worker()
         cpu_up_threshold = 20
         cpu_down_threshold = 10
-        cooling_time = 200
+        cooling_time = 300
         max_worker = 8
         min_worker = 1
         extend_ratio = 1.2
