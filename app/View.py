@@ -17,7 +17,7 @@ from flask import render_template, redirect, url_for, request, session,flash
 from app.login import Login
 from app.database import dbManager
 from app.form import ConfigForm,LoginForm
-from app.AutoScaller import AutoScaler
+
 from werkzeug.security import check_password_hash
 
 from app.LoadBalancer import LoadBalancer
