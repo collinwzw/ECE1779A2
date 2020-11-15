@@ -18,7 +18,7 @@ class EC2:
             instances = ec2.instances.all()
             result = []
             for instance in instances:
-                if instance.id == 'i-03d46ce71ce9f19c7' :
+                if instance.id == 'i-03d46ce71ce9f19c7':
                     pass
                 else:
                     result.append(instance)
@@ -39,7 +39,7 @@ class EC2:
             instances = ec2.instances.all()
             result = []
             for instance in instances:
-                if instance.id == 'i-03d46ce71ce9f19c7' :
+                if instance.id == 'i-03d46ce71ce9f19c7':
                     pass
                 else:
                     result.append(instance.id)
@@ -49,7 +49,7 @@ class EC2:
             flash("AWS connection error")
 
     @staticmethod
-    def getInstanceByStatus(filters):
+    def getInstanceByStatus(status):
         '''
         get ec2 instance by status
         :param filters:
@@ -57,11 +57,19 @@ class EC2:
         '''
         try:
             ec2 = boto3.resource('ec2')
+            filters = [{'Name': 'instance-state-name', 'Values': [status]}]
             instances = ec2.instances.filter(Filters=filters)
-            return instances
+            result = []
+            for instance in instances:
+                if instance.id == 'i-03d46ce71ce9f19c7':
+                    pass
+                else:
+                    result.append(instance)
+            return result
         except:
             e = sys.exc_info()
             flash("AWS connection error")
+
     @staticmethod
     def getInstanceByID(id):
         '''
@@ -91,6 +99,9 @@ class EC2:
                                  MinCount=1,
                                  MaxCount=1,
                                  InstanceType=config.instanceType,
+                                 Monitoring={
+                                     'Enabled': True
+                                 },
                                  SecurityGroupIds=[
                                      config.securityGroupIds,
                                  ],
@@ -126,7 +137,10 @@ class EC2:
             #     r = ec2c.describe_instance_status(InstanceIds=[instanceID])
             # while r['InstanceStatuses'][0]['InstanceState']['Name'] != 'running':
             #     r = ec2c.describe_instance_status(InstanceIds=[instanceID])
-            #     print(r['InstanceStatuses'][0]['InstanceState']['Name'])
+            #     print(r['InstanceStatuses'][0]['InstanceState']['Name']).
+            ec2 = boto3.resource('ec2')
+            instance = ec2.Instance(id=instanceID)
+            instance.wait_until_running()
             client = boto3.client('elbv2')
             response = client.register_targets(
                 TargetGroupArn=config.load_balancer_ARN,
@@ -138,7 +152,7 @@ class EC2:
                 ]
             )
             #return instanceID
-            # ec2.wait_until_running()
+            #
             # ec2.load()
             # print("Waiting for the checks to finish..")
             # time.sleep(45)

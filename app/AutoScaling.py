@@ -1,10 +1,11 @@
 import math
 from time import sleep
 from app import EC2,CloudWatch
-from autoscaling import database
+from app.database.dbManager import dbManager
 from app.LoadBalancer import LoadBalancer
 from app.CloudWatch import CloudWatch
-
+from app import app
+from multiprocessing import Process
 # cpu_up_threshold = 90
 # cpu_down_threshold = 10
 # cooling_time = 200
@@ -19,7 +20,7 @@ class AutoScaling:
 
     @staticmethod
     def read_config():
-        scaling_config = database.fetch_autoscaling_parameter()
+        scaling_config = dbManager.fetch_autoscaling_parameter()
         return  scaling_config
 
     @staticmethod
@@ -44,46 +45,47 @@ class AutoScaling:
     @staticmethod
     def autoscaling():
         '''run the add worker procedure'''
-        # scaling_config = AutoScaling.read_config()
-        # cpu_up_threshold = scaling_config[0]["cpu_up_threshold"]
-        # cpu_down_threshold = scaling_config[0]["cpu_down_threshold"]
-        # cooling_time = scaling_config[0]["cooling_time"]
-        # max_worker = scaling_config[0]["max_worker"]
-        # min_worker = scaling_config[0]["min_worker"]
-        # extend_ratio = scaling_config[0]["extend_ratio"]
-        # shrink_ratio = scaling_config[0]["shrink_ratio"]
-        print("run")
-        cpu_up_threshold = 90
-        cpu_down_threshold = 10
-        cooling_time = 200
-        max_worker = 8
-        min_worker = 1
-        extend_ratio = 5
-        shrink_ratio = 0.2
-        target_instances_id = LoadBalancer.get_valid_target_instances()
-        current_worker = len(target_instances_id)
-        print(current_worker)
-        CPU_average = AutoScaling.average_cpu_utilization(target_instances_id)
-        print(CPU_average)
-        ratio = AutoScaling.get_ratio(CPU_average,cpu_up_threshold,cpu_down_threshold,extend_ratio, shrink_ratio )
-        delta_number = AutoScaling.get_target_number(current_worker, ratio,max_worker,min_worker)
-        print(delta_number)
-        if delta_number == 0:
-            sleep(60)
-            return
-        elif delta_number > 0:
-            target_ids = []
-            for i in range(delta_number):
-                new_id = EC2.EC2.createInstance()
-                target_ids.append(new_id)
-            sleep(cooling_time)
-            for instance_id in target_ids:
-                EC2.EC2.addToELB(instance_id)
-            sleep(30)
-        else:
-            for i in range(abs(delta_number)):
-                AutoScaling.retire_worker()
-            sleep(60)
+        while True:
+            #scaling_config = AutoScaling.read_config()
+            # cpu_up_threshold = scaling_config[0]["cpu_up_threshold"]
+            # cpu_down_threshold = scaling_config[0]["cpu_down_threshold"]
+            # cooling_time = scaling_config[0]["cooling_time"]
+            # max_worker = scaling_config[0]["max_worker"]
+            # min_worker = scaling_config[0]["min_worker"]
+            # extend_ratio = scaling_config[0]["extend_ratio"]
+            # shrink_ratio = scaling_config[0]["shrink_ratio"]
+            print("autoscaler running")
+            cpu_up_threshold = 90
+            cpu_down_threshold = 10
+            cooling_time = 200
+            max_worker = 8
+            min_worker = 1
+            extend_ratio = 5
+            shrink_ratio = 0.2
+            target_instances_id = LoadBalancer.get_valid_target_instances()
+            current_worker = len(target_instances_id)
+            print("current worker: " + str(current_worker))
+            CPU_average = AutoScaling.average_cpu_utilization(target_instances_id)
+            print("CPU usage: " + str(CPU_average))
+            ratio = AutoScaling.get_ratio(CPU_average,cpu_up_threshold,cpu_down_threshold,extend_ratio, shrink_ratio )
+            delta_number = AutoScaling.get_target_number(current_worker, ratio,max_worker,min_worker)
+            print("delta_number: " + str(delta_number))
+            if delta_number == 0:
+                sleep(60)
+                return
+            elif delta_number > 0:
+                target_ids = []
+                for i in range(delta_number):
+                    new_id = EC2.EC2.createInstance()
+                    target_ids.append(new_id)
+                sleep(cooling_time)
+                for instance_id in target_ids:
+                    EC2.EC2.addToELB(instance_id)
+                sleep(30)
+            else:
+                for i in range(abs(delta_number)):
+                    AutoScaling.retire_worker()
+                sleep(60)
 
 
     @staticmethod
@@ -131,15 +133,13 @@ class AutoScaling:
 
 
 
-while True:
-    AutoScaling.autoscaling()
 
 
 
 
 
-
-
+p = Process(target=AutoScaling.autoscaling)
+p.start()
 
 
 

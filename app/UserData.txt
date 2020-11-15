@@ -1,22 +1,10 @@
-Content-Type multipartmixed; boundary=
-MIME-Version 1.0
-
---
-Content-Type textcloud-config; charset=us-ascii
-MIME-Version 1.0
-Content-Transfer-Encoding 7bit
-Content-Disposition attachment; filename=cloud-config.txt
-
-#cloud-config
-cloud_final_modules
-- [scripts-user, always]
-
---
-Content-Type textx-shellscript; charset=us-ascii
-MIME-Version 1.0
-Content-Transfer-Encoding 7bit
-Content-Disposition attachment; filename=userdata.txt
-
-#!binbash
-/bin/echo "Hello World" >> testfile.txt
---
+#!/bin/bash
+cd home/ubuntu/Desktop
+chmod u+x start.sh
+python3 -m pip install flask_mail
+python3 -m pip install flask_bootstrap
+python3 -m pip install mysql-connector-python
+python3 -m pip install flask-wtf
+python3 -m pip install email_validator
+python3 -m pip install ec2_metadata
+./start.sh > log.txt 2> log2.txt

@@ -1,7 +1,9 @@
 import boto3
 from datetime import datetime, timedelta
-
-
+from app import config
+from app.LoadBalancer import LoadBalancer
+from pytz import timezone
+import app.config
 
 class CloudWatch:
 
@@ -55,3 +57,36 @@ class CloudWatch:
             Dimensions=[{'Name': 'instanceID', 'Value': id}]
         )
         return httpRequest
+
+
+    @staticmethod
+    def getWorkerNumber():
+        namespace = 'AWS/ApplicationELB'
+        statistic = 'Maximum'  # could be Sum,Maximum,Minimum,SampleCount,Average
+        unit = 'Count'
+        client = boto3.client('cloudwatch')
+        response = client.get_metric_statistics(
+            Period=1 * 60,
+            StartTime=datetime.utcnow() - timedelta(seconds=30 * 60),
+            EndTime=datetime.utcnow() - timedelta(seconds=0 * 60),
+            MetricName = 'HealthyHostCount',
+            Namespace = namespace,
+            Unit = unit,
+            Statistics=[statistic],
+            Dimensions = [
+                {
+                    'Name': 'TargetGroup',
+                    'Value': 'targetgroup/ece1779a2/bb93c5c02a087296',
+                },
+                {
+                    'Name':'AvailabilityZone',
+                    'Value': 'us-east-1d',
+                },
+                {
+                    'Name': 'LoadBalancer',
+                    'Value': 'app/ece1779a2/61d07839336d9063',
+                },
+            ]
+
+        )
+        return response
