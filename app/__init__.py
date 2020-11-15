@@ -15,6 +15,7 @@ from app import EC2
 from app import View
 from app import LoadBalancer
 from app import CloudWatch
+from app import AutoScaling
 
 
 

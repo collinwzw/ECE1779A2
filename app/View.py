@@ -12,7 +12,6 @@ from flask import render_template, redirect, url_for, request, session,flash
 from app.login import Login
 from app.database import dbManager
 from app.form import ConfigForm,LoginForm
-from app.autoscaling.AutoScaling import AutoScaling
 from werkzeug.security import check_password_hash
 
 @app.route('/')
