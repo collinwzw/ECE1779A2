@@ -228,13 +228,9 @@ class EC2:
             e = sys.exc_info()
             flash("AWS connection error")
 
+
+
     @staticmethod
-    def getInstancesHealthStatus():
-        elb = boto3.client('elbv2')
-        response = elb.describe_target_health(
-            TargetGroupArn=config.load_balancer_ARN,
-        )
-        instances_health_status = {}
-        for target in response['TargetHealthDescriptions']:
-            instances_health_status[target['Target']['Id']] = target['TargetHealth']['State']
-        return instances_health_status
+    def count_worker():
+        target_instances_id = LoadBalancer.get_valid_target_instances()
+        current_worker = len(target_instances_id)

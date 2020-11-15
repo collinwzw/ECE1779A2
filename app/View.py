@@ -3,20 +3,21 @@ import threading
 import time
 
 from app import app
-from flask import render_template, redirect, url_for, request
 from app.EC2 import EC2
 from app.CloudWatch import CloudWatch
-
+from app.LoadBalancer import LoadBalancer
 from operator import itemgetter
 from app.S3FileManager import S3
 import boto3
-from datetime import datetime, timedelta
+from datetime import datetime
+from app.LoadBalancer import LoadBalancer
+
 ToAddELBList = []
-from flask import render_template, redirect, url_for, request, g,session,flash
+from flask import render_template, redirect, url_for, request, session,flash
 from app.login import Login
 from app.database import dbManager
 from app.form import ConfigForm,LoginForm
-
+from app.AutoScaller import AutoScaler
 from werkzeug.security import check_password_hash
 
 from app.LoadBalancer import LoadBalancer
@@ -215,18 +216,18 @@ def logout():
 
 
 
-@app.route('/autoscaller/config', methods=['GET', 'POST'])
+@app.route('/autoscaling/config', methods=['GET', 'POST'])
 def autoscaller_config():
     if 'loggedin' in session:
         form = ConfigForm()
         if form.validate_on_submit():
-            max_worker = int(form.max_worker)
-            min_worker = form.min_worker
-            cooling_time = form.cooling_time
-            cpu_up_threshold = form.cpu_up_threshold
-            cpu_down_threshold = form.cpu_down_threshold
-            extend_ratio = form.extend_ratio
-            shrink_ratio = form.shrink_ratio
+            max_worker = form.max_worker.data
+            min_worker = form.min_worker.data
+            cooling_time = form.cooling_time.data
+            cpu_up_threshold = form.cpu_up_threshold.data
+            cpu_down_threshold = form.cpu_down_threshold.data
+            extend_ratio = form.extend_ratio.data
+            shrink_ratio = form.shrink_ratio.data
             # if cpu_up_threshold < cpu_down_threshold or max_worker < min_worker or extend_ratio < shrink_ratio:
             #     flash("wrong config, please make sure max greater than min")
             #     return render_template("scalingconfig.html", title="Auto Scaller", form=form)
@@ -234,18 +235,19 @@ def autoscaller_config():
             dbManager.dbManager.updata_autoscaling_parameter(max_worker,
                                                                  min_worker, cooling_time, cpu_up_threshold,
                                                                  cpu_down_threshold,extend_ratio, shrink_ratio )
-            return redirect(url_for('index'))
+            return redirect(url_for('autoscaller'))
     else:
         flash('Please Login')
         return redirect(url_for('login'))
-    return render_template("scalingconfig.html", title="Auto Scaller", form=form)
+    return render_template("scalingconfig.html", title="Auto Scaling", form=form)
 
 
-@app.route('/autoscaller', methods=['GET', 'POST'])
+@app.route('/autoscaling', methods=['GET', 'POST'])
 def autoscaller():
     if 'loggedin' in session:
         config_table = dbManager.dbManager.fetch_autoscaling_parameter()
-        return render_template("autoscaller.html", title="Auto Scaller", config=config_table[0])
+        worker_number = LoadBalancer.count_worker()
+        return render_template("autoscaling.html", title="Auto Scaling", config=config_table[0], worker = worker_number)
     else:
         flash('Please Login')
         return redirect(url_for('login'))
@@ -268,10 +270,10 @@ def expand_pool():
             new_pool_size = pool_size + 1
             dbManager.dbManager.write_pool_size(new_pool_size)
             flash("The worker pool size expanded")
-            return redirect(url_for("autoscaller"))
+            return redirect(url_for("autoscaling"))
         else:
             flash("Your pool size has reached the upper limit")
-            return redirect(url_for("autoscaller"))
+            return redirect(url_for("autoscaling"))
 
 
 @app.route('/shrinkpool', methods=['GET', 'POST'])
@@ -283,10 +285,7 @@ def shrink_pool():
             new_pool_size = pool_size - 1
             dbManager.dbManager.write_pool_size(new_pool_size)
             flash("The worker pool size shrinked")
-            return redirect(url_for("autoscaller"))
+            return redirect(url_for("autoscaling"))
         else:
             flash("Your pool size has reached the lower limit")
-            return redirect(url_for("autoscaller"))
-
-
-
+            return redirect(url_for("autoscaling"))
