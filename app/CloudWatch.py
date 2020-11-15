@@ -1,7 +1,9 @@
 import boto3
 from datetime import datetime, timedelta
 from app import config
-
+from app.LoadBalancer import LoadBalancer
+from pytz import timezone
+import app.config
 
 class CloudWatch:
 
@@ -56,6 +58,7 @@ class CloudWatch:
         )
         return httpRequest
 
+
     @staticmethod
     def getWorkerNumber():
         namespace = 'AWS/ApplicationELB'
@@ -73,9 +76,12 @@ class CloudWatch:
             Dimensions = [
                 {
                     'Name': 'TargetGroup',
-                    'Value': config.load_balancer_ARN,
+                    'Value': 'targetgroup/ece1779a2/bb93c5c02a087296',
                 },
-
+                {
+                    'Name':'AvailabilityZone',
+                    'Value': 'us-east-1d',
+                },
                 {
                     'Name': 'LoadBalancer',
                     'Value': 'app/ece1779a2/61d07839336d9063',

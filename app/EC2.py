@@ -137,7 +137,10 @@ class EC2:
             #     r = ec2c.describe_instance_status(InstanceIds=[instanceID])
             # while r['InstanceStatuses'][0]['InstanceState']['Name'] != 'running':
             #     r = ec2c.describe_instance_status(InstanceIds=[instanceID])
-            #     print(r['InstanceStatuses'][0]['InstanceState']['Name'])
+            #     print(r['InstanceStatuses'][0]['InstanceState']['Name']).
+            ec2 = boto3.resource('ec2')
+            instance = ec2.Instance(id=instanceID)
+            instance.wait_until_running()
             client = boto3.client('elbv2')
             response = client.register_targets(
                 TargetGroupArn=config.load_balancer_ARN,
@@ -149,7 +152,7 @@ class EC2:
                 ]
             )
             #return instanceID
-            # ec2.wait_until_running()
+            #
             # ec2.load()
             # print("Waiting for the checks to finish..")
             # time.sleep(45)

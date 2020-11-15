@@ -19,8 +19,7 @@ from app import CloudWatch
 from app import AutoScaling
 
 
-p = Process(target=AutoScaling.AutoScaling.autoscaling)
-p.start()
+
 
 app.run('0.0.0.0',5000,debug=True)
 

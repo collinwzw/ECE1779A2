@@ -65,7 +65,9 @@ def ec2_deleteAllInstanceExceptUserManager():
 
 @app.route('/ec2_examples/deleteAllData/', methods=['POST'])
 def ec2_deleteAllData():
-
+    #dbManager.dbManager.delete_all_data("accounts")
+    dbManager.dbManager.delete_all_data("images")
+    #dbManager.dbManager.write_admin()
     buckets = S3.getAlls3Bucket()
     for bucket in buckets:
         S3.deleteAllFileFromBucket(bucket.name)
@@ -147,7 +149,7 @@ def getWorkerNumber():
 # Start a new EC2 instance
 def ec2_create():
     instanceID = EC2.createInstance()
-    ToAddELBList.append(instanceID)
+    EC2.addToELB(instanceID)
     return redirect(url_for('ec2_list'))
 
 
@@ -247,12 +249,6 @@ def autoscaller():
         return redirect(url_for('login'))
 
 
-@app.route('/worker/deleta_all_data')
-def delete_all_data():
-    dbManager.dbManager.delete_all_data("accounts")
-    dbManager.dbManager.delete_all_data("images")
-    dbManager.dbManager.write_admin()
-    redirect(url_for("index"))
 
 
 @app.route('/expandpool', methods=['GET', 'POST'])

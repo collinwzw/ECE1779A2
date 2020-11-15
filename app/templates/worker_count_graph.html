@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <div id="worker_plot" ></div>
+    <div id="worker_plot" style="width:300px;height:150px"></div>
 
     <script>
-        function get_Worker_Data () {
+        async function get_Worker_Data () {
             const url = '/get_worker_number';
-            const response = fetch(url);
+            const response = await fetch(url);
             return response.json()
         }
         var options = {
