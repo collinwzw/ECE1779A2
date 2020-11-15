@@ -1,6 +1,6 @@
 import boto3
 from datetime import datetime, timedelta
-
+from app import config
 
 
 class CloudWatch:
@@ -55,3 +55,32 @@ class CloudWatch:
             Dimensions=[{'Name': 'instanceID', 'Value': id}]
         )
         return httpRequest
+
+    @staticmethod
+    def getWorkerNumber():
+        namespace = 'AWS/ApplicationELB'
+        statistic = 'Maximum'  # could be Sum,Maximum,Minimum,SampleCount,Average
+        unit = 'Count'
+        client = boto3.client('cloudwatch')
+        response = client.get_metric_statistics(
+            Period=1 * 60,
+            StartTime=datetime.utcnow() - timedelta(seconds=30 * 60),
+            EndTime=datetime.utcnow() - timedelta(seconds=0 * 60),
+            MetricName = 'HealthyHostCount',
+            Namespace = namespace,
+            Unit = unit,
+            Statistics=[statistic],
+            Dimensions = [
+                {
+                    'Name': 'TargetGroup',
+                    'Value': config.load_balancer_ARN,
+                },
+
+                {
+                    'Name': 'LoadBalancer',
+                    'Value': 'app/ece1779a2/61d07839336d9063',
+                },
+            ]
+
+        )
+        return response

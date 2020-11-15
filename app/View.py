@@ -18,7 +18,10 @@ from app.form import ConfigForm,LoginForm
 from app.AutoScaller import AutoScaler
 from werkzeug.security import check_password_hash
 
+
 from app.LoadBalancer import LoadBalancer
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -29,38 +32,6 @@ def index():
         return render_template("main.html")
     # User is not loggedin redirect to login pa ge
     return render_template("main.html",title="Landing Page")
-'''
-@app.route('/get_worker_count_graph',methods=['POST','GET'])
-def get_worker_count_graph():
-    monitor = worker_count.get_worker_count_monitor()
-    return render_template('worker_count_graph.html',
-    worker_count_by_time = monitor.get_record())
-'''
-
-@app.route('/get_worker_count_graph',methods=['POST','GET'])
-def get_worker_count_graph():
-    record = []
-    period = 60
-    time_range = 1800
-    record_max = time_range/period
-    started = False
-    running_thread = threading.Thread(target = get_worker_count_graph,daemon = True)
-    if not started:
-        started = True
-        #running_thread.start()
-        while True:
-            record.append({
-                "Timestamp": datetime.now().strftime("%H:%M"),
-                "Count": LoadBalancer.get_number_of_worker()
-            })
-            if (len(record) > record_max):
-                record.pop(0)
-            #time.sleep(period)
-            return render_template('worker_count_graph.html',
-                           worker_count_by_time = record)
-
-
-
 
 @app.route('/ec2_list', methods=['GET', 'POST'])
 @app.route('/ec2_examples', methods=['GET', 'POST'])
@@ -137,6 +108,29 @@ def ec2GetRequestData(id):
     #                        instance=instance,
     #                        cpu_stats=cpu_stats,
     #                        httpRequest_stats = httpRequest_stats)
+
+@app.route('/worker_number_graph',methods=['POST','GET'])
+def WorkerNumberGraph():
+    return render_template("worker_count_graph.html")
+
+
+@app.route('/get_worker_number',methods=['POST','GET'])
+def getWorkerNumber():
+    worker = CloudWatch.getWorkerNumber()
+    worker_stats =[]
+    for point in worker['Datapoints']:
+        # hour = point['Timestamp'].hour
+        minute = point['Timestamp'].minute
+        current_minute = datetime.now().minute
+        if minute > current_minute:
+            time = current_minute + 60 - minute
+        else:
+            time = current_minute - minute
+        worker_stats.append([-time, point['Maximum']])
+
+    worker_stats = sorted(worker_stats, key=itemgetter(0), reverse=True)
+    return {"data": worker_stats}
+
 
 
 
