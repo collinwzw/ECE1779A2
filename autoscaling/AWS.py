@@ -110,20 +110,23 @@ class aws:
             data = myfile.read()
         ec2 = boto3.resource('ec2')
         instance = ec2.create_instances(ImageId=config.ami_id,
-                                            MinCount=1,
-                                            MaxCount=1,
-                                            InstanceType=config.instanceType,
-                                            SecurityGroupIds=[
-                                                config.securityGroupIds,
-                                            ],
-                                            SubnetId=config.subnet_id,
-                                            # UserData=f"\n#!/bin/bash\ncd Desktop\nchmod u+x start.sh\n./start.sh \n",
-                                            # UserData=f"\n#!/bin/bash\ncd Desktop\n./start.sh \n",
-                                            UserData=data,
-                                            KeyName=config.keyname,
-                                            IamInstanceProfile={
-                                                'Arn': config.instanceProfileARN,
-                                            },
+                                        MinCount=1,
+                                        MaxCount=1,
+                                        InstanceType=config.instanceType,
+                                        Monitoring={
+                                            'Enabled': True
+                                        },
+                                        SecurityGroupIds=[
+                                            config.securityGroupIds,
+                                        ],
+                                        SubnetId=config.subnet_id,
+                                        # UserData=f"\n#!/bin/bash\ncd Desktop\nchmod u+x start.sh\n./start.sh \n",
+                                        # UserData=f"\n#!/bin/bash\ncd Desktop\n./start.sh \n",
+                                        UserData=data,
+                                        KeyName=config.keyname,
+                                        IamInstanceProfile={
+                                            'Arn': config.instanceProfileARN,
+                                        },
                                         )
         return instance[0].id
 
