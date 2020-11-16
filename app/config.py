@@ -1,6 +1,6 @@
 
 
-ami_id = 'ami-0887005d18835ea0c'
+ami_id = 'ami-051b251e1a36f8e3d'
 #ami_id = 'ami-0bf618774e7879c6a'
 subnet_id = 'subnet-17f94d71'
 keyname = 'ECE1779 Qiwei Fu 2020Fall'

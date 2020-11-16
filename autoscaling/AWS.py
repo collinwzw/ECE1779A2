@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 import boto3
-from autoscaling import config
 import sys,os
+import config
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class aws:

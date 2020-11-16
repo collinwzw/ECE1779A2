@@ -65,9 +65,9 @@ def ec2_deleteAllInstanceExceptUserManager():
 
 @app.route('/ec2_examples/deleteAllData/', methods=['POST'])
 def ec2_deleteAllData():
-    #dbManager.dbManager.delete_all_data("accounts")
+    dbManager.dbManager.delete_all_data("accounts")
     dbManager.dbManager.delete_all_data("images")
-    #dbManager.dbManager.write_admin()
+    dbManager.dbManager.write_admin()
     buckets = S3.getAlls3Bucket()
     for bucket in buckets:
         S3.deleteAllFileFromBucket(bucket.name)
@@ -145,7 +145,7 @@ def getWorkerNumber():
 
 
 
-@app.route('/ec2_examples/create', methods=['POST'])
+@app.route('/ec2_examples/create', methods=['POST','GET'])
 # Start a new EC2 instance
 def ec2_create():
     instanceID = EC2.createInstance()

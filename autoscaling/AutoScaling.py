@@ -2,7 +2,7 @@ import math
 from time import sleep
 from AWS import aws
 from database import database
-
+import sys
 class AutoScaling:
 
     @staticmethod
