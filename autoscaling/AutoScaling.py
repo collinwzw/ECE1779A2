@@ -80,7 +80,7 @@ class AutoScaling:
             for i in range(abs(delta_number)):
                 AutoScaling.retire_worker()
             print("retire sucess")
-            sleep(60)
+            sleep(120)
 
 
     @staticmethod
@@ -123,7 +123,7 @@ class AutoScaling:
             print(retire_instance_id)
             # unregister instance from target group
             aws.removeELB(retire_instance_id)
-            sleep(10)
+            sleep(60)
             aws.deleteInstanceByID(retire_instance_id)
         else:
             return False

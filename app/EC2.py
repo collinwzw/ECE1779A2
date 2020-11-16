@@ -222,7 +222,6 @@ class EC2:
             instances = EC2.getAllInstance()
             for instance in instances:
                 if instance.id == 'i-03d46ce71ce9f19c7':
-                    #EC2.stopInstanceByID(instance.id)
                     pass
                 else:
                     EC2.deleteInstanceByID(instance.id)

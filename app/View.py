@@ -1,7 +1,7 @@
 import json
 import threading
 import time
-
+from app import config
 from app import app
 from app.EC2 import EC2
 from app.CloudWatch import CloudWatch
@@ -61,6 +61,7 @@ def ec2_list():
 @app.route('/ec2_examples/deleteAllInstance/', methods=['POST'])
 def ec2_deleteAllInstanceExceptUserManager():
     EC2.deleteAllInstanceExceptUserManager()
+    EC2.stopInstanceByID(config.manager_ID)
     return redirect(url_for('ec2_list'))
 
 @app.route('/ec2_examples/deleteAllData/', methods=['POST'])
