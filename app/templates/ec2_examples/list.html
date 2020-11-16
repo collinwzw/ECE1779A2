@@ -1,19 +1,21 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-<p>
+
     <form action="{{url_for('ec2_create')}}" method="post" >
         <input type="submit" value="Add one Worker">
     </form>
+    <br>
     <form action="{{url_for('ec2_deleteAllInstanceExceptUserManager')}}" method='post' onsubmit='return confirm("Are you sure?")'>
         <input type='submit' value='Delete All Instance' />
     </form>
+    <br>
     <form action="{{url_for('ec2_deleteAllData')}}" method='post' onsubmit='return confirm("Are you sure?")'>
         <input type='submit' value='Delete All data' />
     </form>
-</p>
-
+    <br>
     <table class="table table-bordered">
+
     <thead>
        <th>ID</th>
        <th>Type</th>
