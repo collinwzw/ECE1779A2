@@ -225,11 +225,11 @@ def autoscaller_config():
             cpu_down_threshold = form.cpu_down_threshold.data
             extend_ratio = form.extend_ratio.data
             shrink_ratio = form.shrink_ratio.data
-            # if cpu_up_threshold < cpu_down_threshold or max_worker < min_worker or extend_ratio < shrink_ratio:
-            #     flash("wrong config, please make sure max greater than min")
-            #     return render_template("scalingconfig.html", title="Auto Scaller", form=form)
-            # else:
-            dbManager.dbManager.updata_autoscaling_parameter(max_worker,
+            if cpu_up_threshold < cpu_down_threshold or max_worker < min_worker or extend_ratio < shrink_ratio:
+                flash("wrong config, please make sure max greater than min")
+                return render_template("scalingconfig.html", title="Auto Scaller", form=form)
+            else:
+                dbManager.dbManager.updata_autoscaling_parameter(max_worker,
                                                                  min_worker, cooling_time, cpu_up_threshold,
                                                                  cpu_down_threshold,extend_ratio, shrink_ratio )
             return redirect(url_for('autoscaller'))
