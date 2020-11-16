@@ -35,7 +35,7 @@
                 <a class="navbar-brand" href="{{ url_for('index') }}">Home</a>
                     {% if session['loggedin'] %}
                     <a class="navbar-brand" href="{{ url_for('ec2_list') }}">Worker Detail</a>
-                    <a class="navbar-brand" href="{{ url_for('autoscaller') }}">Auto Scaller</a>
+                    <a class="navbar-brand" href="{{ url_for('autoscaling') }}">Auto Scaller</a>
                     {% endif %}
             </div>
                 <ul class="nav navbar-nav navbar-right">

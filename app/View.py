@@ -37,7 +37,7 @@ def index():
 
 
 @app.route('/ec2_list', methods=['GET', 'POST'])
-@app.route('/ec2_examples', methods=['GET', 'POST'])
+@app.route('/ec2_list', methods=['GET', 'POST'])
 # Display an HTML list of all ec2 instances
 def ec2_list():
 
@@ -56,15 +56,15 @@ def ec2_list():
 
     for instance in instances:
         pass
-    return render_template("ec2_examples/list.html", title="EC2 Instances", instances=instances)
+    return render_template("ec2_list/list.html", title="EC2 Instances", instances=instances)
 
-@app.route('/ec2_examples/deleteAllInstance/', methods=['POST'])
+@app.route('/ec2_list/deleteAllInstance/', methods=['POST'])
 def ec2_deleteAllInstanceExceptUserManager():
     EC2.deleteAllInstanceExceptUserManager()
     EC2.stopInstanceByID(config.manager_ID)
     return redirect(url_for('ec2_list'))
 
-@app.route('/ec2_examples/deleteAllData/', methods=['POST'])
+@app.route('/ec2_list/deleteAllData/', methods=['POST'])
 def ec2_deleteAllData():
     dbManager.dbManager.delete_all_data("accounts")
     dbManager.dbManager.delete_all_data("images")
@@ -72,7 +72,7 @@ def ec2_deleteAllData():
     buckets = S3.getAlls3Bucket()
     for bucket in buckets:
         S3.deleteAllFileFromBucket(bucket.name)
-
+    flash('All Data has been deleted!')
     return redirect(url_for('ec2_list'))
 
 @app.route('/ec2_get_cpu_data/<id>', methods=['GET'])
@@ -116,7 +116,7 @@ def ec2GetRequestData(id):
     return {"data": httpRequest_stats}
 
     #return cpu_stats
-    # return render_template("ec2_examples/view.html", title="Instance Info",
+    # return render_template("ec2_list/view.html", title="Instance Info",
     #                        instance=instance,
     #                        cpu_stats=cpu_stats,
     #                        httpRequest_stats = httpRequest_stats)
@@ -146,7 +146,7 @@ def getWorkerNumber():
 
 
 
-@app.route('/ec2_examples/create', methods=['POST','GET'])
+@app.route('/ec2_list/create', methods=['POST','GET'])
 # Start a new EC2 instance
 def ec2_create():
     instanceID = EC2.createInstance()
@@ -154,7 +154,7 @@ def ec2_create():
     return redirect(url_for('ec2_list'))
 
 
-@app.route('/ec2_examples/delete/<id>', methods=['POST'])
+@app.route('/ec2_list/delete/<id>', methods=['POST'])
 # Terminate a EC2 instance
 def ec2_destroy(id):
     # create connection to ec2
@@ -214,7 +214,7 @@ def logout():
 
 
 @app.route('/autoscaling/config', methods=['GET', 'POST'])
-def autoscaller_config():
+def autoscaling_config():
     if 'loggedin' in session:
         form = ConfigForm()
         if form.validate_on_submit():
@@ -232,7 +232,7 @@ def autoscaller_config():
                 dbManager.dbManager.updata_autoscaling_parameter(max_worker,
                                                                  min_worker, cooling_time, cpu_up_threshold,
                                                                  cpu_down_threshold,extend_ratio, shrink_ratio )
-            return redirect(url_for('autoscaller'))
+            return redirect(url_for('autoscaling'))
     else:
         flash('Please Login')
         return redirect(url_for('login'))
@@ -240,7 +240,7 @@ def autoscaller_config():
 
 
 @app.route('/autoscaling', methods=['GET', 'POST'])
-def autoscaller():
+def autoscaling():
     if 'loggedin' in session:
         config_table = dbManager.dbManager.fetch_autoscaling_parameter()
         worker_number = LoadBalancer.count_worker()
@@ -260,7 +260,7 @@ def expand_pool():
         if pool_size <8:
             new_pool_size = pool_size + 1
             dbManager.dbManager.write_pool_size(new_pool_size)
-            flash("The worker pool size expanded")
+            flash("The Max worker expanded")
             return redirect(url_for("autoscaling"))
         else:
             flash("Your pool size has reached the upper limit")
@@ -272,10 +272,11 @@ def shrink_pool():
     if 'loggedin' in session:
         config_table = dbManager.dbManager.fetch_autoscaling_parameter()
         pool_size = config_table[0]["max_worker"]
-        if pool_size >1:
+        min_worker = config_table[0]["min_worker"]
+        if pool_size > min_worker:
             new_pool_size = pool_size - 1
             dbManager.dbManager.write_pool_size(new_pool_size)
-            flash("The worker pool size shrinked")
+            flash("The Max worker size shrinked")
             return redirect(url_for("autoscaling"))
         else:
             flash("Your pool size has reached the lower limit")
