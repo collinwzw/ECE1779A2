@@ -55,7 +55,7 @@ class AutoScaling:
                 new_id = aws.createInstance()
                 target_ids.append(new_id)
                 print("add worker success")
-            sleep(70)
+            sleep(100)
             for instance_id in target_ids:
                 aws.addToELB(instance_id)
                 print("register success")
