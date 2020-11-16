@@ -18,37 +18,13 @@ class database:
                                        database=db_config['database'])
 
     @staticmethod
-    def get_db():
-        # access to database
-        if 'db' not in g:
-            g.db = database.connect_to_database()
-
-        return g.db
-
-
-    @staticmethod
-    def delete_all_data(table):
-        '''method delete all data in one table'''
-        db = database.get_db()
-        cursor = db.cursor(dictionary=True)
-        try:
-            cursor.execute("truncate table " + table)
-            cursor.execute("commit")
-        except:
-            e = sys.exc_info()
-            db.rollback()
-            return render_template("error.html", message="database error: " + str(e))
-
-    @staticmethod
     def fetch_autoscaling_parameter():
-        db = database.get_db()
+        """get the parameter from database"""
+        db = database.connect_to_database()
         cursor = db.cursor(dictionary=True)
-        try:
-            query = "SELECT * FROM autoscaling "
-            cursor.execute(query)
-            result = cursor.fetchall()
-            return result
-        except:
-            e = sys.exc_info()
-            db.rollback()
-            return render_template("error.html", message="database error: " + str(e))
+        query = "SELECT * FROM autoscaling "
+        cursor.execute(query)
+        result = cursor.fetchall()
+        cursor.close()
+        db.close()
+        return result

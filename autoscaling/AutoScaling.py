@@ -3,17 +3,9 @@ from time import sleep
 from AWS import aws
 from database import database
 import sys
-class AutoScaling:
 
-    @staticmethod
-    def read_config():
-        db = database.get_db()
-        cursor = db.cursor(dictionary=True)
-        query = "SELECT * FROM autoscaling "
-        cursor.execute(query)
-        result = cursor.fetchall()
-        scaling_config = result
-        return  scaling_config
+
+class AutoScaling:
 
     @staticmethod
     def average_cpu_utilization(instanceIDs):
@@ -35,23 +27,15 @@ class AutoScaling:
     @staticmethod
     def autoscaling():
         '''run the add worker procedure'''
-        # scaling_config = AutoScaling.read_config()
-        # cpu_up_threshold = scaling_config[0]["cpu_up_threshold"]
-        # cpu_down_threshold = scaling_config[0]["cpu_down_threshold"]
-        # cooling_time = scaling_config[0]["cooling_time"]
-        # max_worker = scaling_config[0]["max_worker"]
-        # min_worker = scaling_config[0]["min_worker"]
-        # extend_ratio = scaling_config[0]["extend_ratio"]
-        # shrink_ratio = scaling_config[0]["shrink_ratio"]
+        scaling_config = database.fetch_autoscaling_parameter()
+        cpu_up_threshold = scaling_config[0]["cpu_up_threshold"]
+        cpu_down_threshold = scaling_config[0]["cpu_down_threshold"]
+        cooling_time = scaling_config[0]["cooling_time"]
+        max_worker = scaling_config[0]["max_worker"]
+        min_worker = scaling_config[0]["min_worker"]
+        extend_ratio = scaling_config[0]["extend_ratio"]
+        shrink_ratio = scaling_config[0]["shrink_ratio"]
         print("autoscaler running")
-        # AutoScaling.register_idle_worker()
-        cpu_up_threshold = 20
-        cpu_down_threshold = 10
-        cooling_time = 300
-        max_worker = 8
-        min_worker = 1
-        extend_ratio = 1.2
-        shrink_ratio = 0.7
         target_instances_id = aws.get_valid_target_instances()
         current_worker = len(target_instances_id)
         print("current worker: " + str(current_worker))
